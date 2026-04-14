@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perspectivas IA — Sanctuary AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><div><div class="sidebar-logo-text">Sanctuary AI</div></div></div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+        <a href="dashboard.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Panel</a>
+        <a href="gastos.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Gastos</a>
+        <a href="insights.html" class="sidebar-item active"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Perspectivas IA</a>
+        <a href="asesor.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Portal del Asesor</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="perfil.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Mi Perfil</a>
+        <button class="sidebar-item" id="logout-btn" style="color:rgba(233,69,96,0.8)"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión</button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="navbar">
+        <div class="navbar-left"><h2 style="font-weight:700;font-size:1rem">🧠 Perspectivas IA</h2></div>
+        <div class="navbar-right">
+          <div class="flex items-center gap-2">
+            <div class="navbar-avatar" id="navbar-avatar">XX</div>
+            <div class="navbar-user-info"><div class="name" id="navbar-name">—</div><div class="plan" id="navbar-plan">—</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div class="page-header">
+          <h1 class="page-title">Perspectivas de IA</h1>
+          <p class="page-subtitle">Recomendaciones y análisis inteligente basados en tus patrones financieros.</p>
+        </div>
+
+        <!-- AI Score -->
+        <div class="insight-card mb-6" style="display:flex;align-items:center;gap:24px">
+          <div style="width:80px;height:80px;border-radius:50%;border:4px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span style="font-size:1.8rem;font-weight:900" id="score">—</span>
+          </div>
+          <div>
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:4px">Índice de Salud Financiera</h3>
+            <p style="color:rgba(255,255,255,0.7);font-size:0.875rem" id="score-desc">Analizando tus datos...</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Recommendations -->
+          <div class="card">
+            <h3 style="font-weight:700;margin-bottom:20px">🎯 Recomendaciones Personalizadas</h3>
+            <div id="recommendations" style="display:flex;flex-direction:column;gap:12px">
+              <div style="padding:20px;text-align:center;color:var(--text-muted)"><span class="spinner spinner-dark"></span></div>
+            </div>
+          </div>
+
+          <!-- Spending Patterns -->
+          <div class="card">
+            <h3 style="font-weight:700;margin-bottom:20px">📊 Análisis de Patrones</h3>
+            <div id="patterns" style="display:flex;flex-direction:column;gap:12px">
+              <div style="padding:20px;text-align:center;color:var(--text-muted)"><span class="spinner spinner-dark"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly trend -->
+        <div class="card mt-6">
+          <h3 style="font-weight:700;margin-bottom:16px">📈 Resumen del Mes</h3>
+          <div id="monthly-summary">
+            <div style="padding:20px;text-align:center;color:var(--text-muted)"><span class="spinner spinner-dark"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderNavbarUser();
+    const user = auth.getUser();
+    loadInsights();
+
+    async function loadInsights() {
+      try {
+        const [insights, expenses] = await Promise.all([
+          api.get(`/insights?userId=${user.id}`),
+          api.get(`/expenses?userId=${user.id}`),
+        ]);
+
+        // Score
+        const totalExp = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + Number(e.amount), 0);
+        const totalInc = expenses.filter(e => e.type === 'income').reduce((s, e) => s + Number(e.amount), 0);
+        const score = totalInc > 0 ? Math.min(99, Math.round((1 - totalExp/totalInc) * 100 + 50)) : 72;
+        setText('#score', score);
+        setText('#score-desc', score >= 70 ? '¡Tu salud financiera es buena! Seguí optimizando.' : 'Podés mejorar. Mirá las recomendaciones.');
+
+        // Categories breakdown
+        const cats = {};
+        expenses.filter(e => e.type === 'expense').forEach(e => { cats[e.category] = (cats[e.category]||0) + Number(e.amount); });
+        const sortedCats = Object.entries(cats).sort(([,a],[,b]) => b - a);
+        const topCat = sortedCats[0] || ['Ninguno', 0];
+
+        // Recommendations
+        const recs = [
+          { icon: '💡', title: 'Optimizar Suscripciones', text: `Revisá tus suscripciones mensuales. Podés ahorrar cancelando las que no usás.`, priority: 'warning' },
+          { icon: '🛒', title: `${topCat[0]} es tu mayor gasto`, text: `Gastaste ${formatMoney(topCat[1])} en ${topCat[0]}. Considerá buscar alternativas más económicas.`, priority: 'error' },
+          { icon: '💰', title: 'Fondo de Emergencia', text: 'Intentá ahorrar el equivalente a 3-6 meses de gastos para imprevistos.', priority: 'info' },
+          { icon: '📊', title: 'Registrá todos los gastos', text: 'Cuantos más gastos registres, mejores serán las recomendaciones de la IA.', priority: 'success' },
+        ];
+        setHTML('#recommendations', recs.map(r => `
+          <div style="display:flex;gap:14px;padding:14px;background:var(--bg);border-radius:var(--radius);border-left:3px solid var(--${r.priority})">
+            <span style="font-size:1.4rem;flex-shrink:0">${r.icon}</span>
+            <div>
+              <div style="font-weight:700;font-size:0.875rem;margin-bottom:3px">${r.title}</div>
+              <p class="text-sm text-muted">${r.text}</p>
+            </div>
+          </div>
+        `).join(''));
+
+        // Patterns
+        if (sortedCats.length === 0) {
+          setHTML('#patterns', '<div class="empty-state"><p class="empty-state-title">Sin datos suficientes</p><p class="empty-state-desc">Agregá al menos 3 gastos para ver patrones.</p></div>');
+        } else {
+          setHTML('#patterns', sortedCats.map(([cat, amt]) => {
+            const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
+            return `
+              <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:1.4rem">${categoryIcons[cat]||'📦'}</span>
+                <div style="flex:1">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                    <span style="font-weight:600;font-size:0.85rem">${cat}</span>
+                    <span style="font-weight:700;font-size:0.85rem">${formatMoney(amt)}</span>
+                  </div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                </div>
+                <span class="badge badge-info">${pct}%</span>
+              </div>
+            `;
+          }).join(''));
+        }
+
+        // Monthly summary
+        const thisMonth = expenses.filter(e => {
+          const d = new Date(e.date);
+          const now = new Date();
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+        const mExp = thisMonth.filter(e => e.type === 'expense').reduce((s,e) => s + Number(e.amount), 0);
+        const mInc = thisMonth.filter(e => e.type === 'income').reduce((s,e) => s + Number(e.amount), 0);
+        setHTML('#monthly-summary', `
+          <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat-card"><div class="stat-label">Gastos del mes</div><div class="stat-value" style="font-size:1.4rem;color:var(--error)">${formatMoney(mExp)}</div></div>
+            <div class="stat-card"><div class="stat-label">Ingresos del mes</div><div class="stat-value" style="font-size:1.4rem;color:var(--success)">${formatMoney(mInc)}</div></div>
+            <div class="stat-card"><div class="stat-label">Transacciones</div><div class="stat-value" style="font-size:1.4rem">${thisMonth.length}</div></div>
+            <div class="stat-card"><div class="stat-label">Balance</div><div class="stat-value" style="font-size:1.4rem;color:${mInc-mExp>=0?'var(--success)':'var(--error)'}">${formatMoney(mInc-mExp)}</div></div>
+          </div>
+        `);
+
+      } catch (err) {
+        console.error(err);
+        toast('Error al cargar perspectivas', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

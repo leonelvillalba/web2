@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil — Sanctuary AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo"><div class="sidebar-logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><div><div class="sidebar-logo-text">Sanctuary AI</div></div></div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+        <a href="dashboard.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Panel</a>
+        <a href="gastos.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Gastos</a>
+        <a href="insights.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Perspectivas IA</a>
+        <a href="asesor.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Portal del Asesor</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="perfil.html" class="sidebar-item active"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Mi Perfil</a>
+        <button class="sidebar-item" id="logout-btn" style="color:rgba(233,69,96,0.8)"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión</button>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header class="navbar">
+        <div class="navbar-left"><h2 style="font-weight:700;font-size:1rem">👤 Mi Perfil</h2></div>
+        <div class="navbar-right">
+          <div class="flex items-center gap-2">
+            <div class="navbar-avatar" id="navbar-avatar">XX</div>
+            <div class="navbar-user-info"><div class="name" id="navbar-name">—</div><div class="plan" id="navbar-plan">—</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content" style="max-width:700px">
+        <div class="page-header">
+          <h1 class="page-title">Mi Perfil</h1>
+          <p class="page-subtitle">Configurá tu información personal y preferencias.</p>
+        </div>
+
+        <!-- Profile card -->
+        <div class="card mb-6">
+          <div style="display:flex;align-items:center;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px">
+            <div class="avatar avatar-lg" id="profile-avatar">XX</div>
+            <div>
+              <h2 style="font-weight:800;font-size:1.2rem" id="profile-name">—</h2>
+              <p class="text-sm text-muted" id="profile-email">—</p>
+              <div class="mt-1"><span class="badge" id="profile-badge">—</span></div>
+            </div>
+          </div>
+
+          <div id="profile-alert" class="alert hidden"></div>
+
+          <form id="profile-form">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input type="text" id="pf-firstName" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Apellido</label>
+                <input type="text" id="pf-lastName" class="form-input" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo Electrónico</label>
+              <input type="email" id="pf-email" class="form-input" disabled style="opacity:0.6;cursor:not-allowed">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Presupuesto Mensual</label>
+              <input type="number" id="pf-budget" class="form-input" placeholder="Ej: 5000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Moneda</label>
+              <select id="pf-currency" class="form-input" style="cursor:pointer">
+                <option value="ARS">🇦🇷 Peso Argentino (ARS)</option>
+                <option value="USD">🇺🇸 Dólar (USD)</option>
+                <option value="EUR">🇪🇺 Euro (EUR)</option>
+              </select>
+            </div>
+            <button type="submit" id="save-profile-btn" class="btn btn-primary" style="margin-top:8px">
+              Guardar Cambios
+            </button>
+          </form>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="card" style="border-color:rgba(233,69,96,0.3)">
+          <h3 style="font-weight:700;color:var(--error);margin-bottom:8px">⚠️ Zona de Peligro</h3>
+          <p class="text-sm text-muted mb-4">Estas acciones son irreversibles.</p>
+          <button class="btn btn-outline btn-sm" style="color:var(--error);border-color:var(--error)" id="logout-btn">
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderNavbarUser();
+    const user = auth.getUser();
+
+    // Fill profile data
+    const initials = (user.firstName?.[0]||'') + (user.lastName?.[0]||'');
+    setText('#profile-avatar', initials);
+    setText('#profile-name', `${user.firstName} ${user.lastName}`);
+    setText('#profile-email', user.email);
+    const badge = document.getElementById('profile-badge');
+    if (user.plan === 'plus') { badge.className = 'badge badge-premium'; badge.textContent = '👑 Plan Plus'; }
+    else { badge.className = 'badge badge-basic'; badge.textContent = '📋 Plan Básico'; }
+
+    document.getElementById('pf-firstName').value = user.firstName || '';
+    document.getElementById('pf-lastName').value = user.lastName || '';
+    document.getElementById('pf-email').value = user.email || '';
+    document.getElementById('pf-budget').value = user.budget || '';
+    document.getElementById('pf-currency').value = user.currency || 'ARS';
+
+    // Save profile
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('save-profile-btn');
+      const data = {
+        firstName: document.getElementById('pf-firstName').value.trim(),
+        lastName: document.getElementById('pf-lastName').value.trim(),
+        budget: parseFloat(document.getElementById('pf-budget').value) || null,
+        currency: document.getElementById('pf-currency').value,
+      };
+
+      hideAlert('#profile-alert');
+      if (!data.firstName || !data.lastName) { showAlert('#profile-alert', 'Nombre y apellido son obligatorios'); return; }
+
+      setLoading(btn, true);
+      try {
+        const updated = await api.put(`/auth/profile/${user.id}`, data);
+        const newUser = { ...user, ...data };
+        auth.setUser(newUser);
+        showAlert('#profile-alert', 'Perfil actualizado correctamente', 'success');
+        renderNavbarUser();
+        const ni = (newUser.firstName?.[0]||'') + (newUser.lastName?.[0]||'');
+        setText('#profile-avatar', ni);
+        setText('#profile-name', `${newUser.firstName} ${newUser.lastName}`);
+      } catch (err) {
+        showAlert('#profile-alert', err.message || 'Error al guardar');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>

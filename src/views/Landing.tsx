@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   ArrowRight, 
@@ -17,14 +17,21 @@ import {
   ScanLine,
   TrendingUp,
   Target,
-  Bell
+  Bell,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 
 interface LandingProps {
   onNavigate: (view: string) => void;
+  onLogin?: (user: any) => void;
 }
 
-const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
+const Landing: React.FC<LandingProps> = ({ onNavigate, onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {

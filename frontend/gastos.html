@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastos — Sanctuary AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR (same as dashboard) -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <div><div class="sidebar-logo-text">Sanctuary AI</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+        <a href="dashboard.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Panel</a>
+        <a href="gastos.html" class="sidebar-item active"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Gastos</a>
+        <a href="insights.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Perspectivas IA</a>
+        <a href="asesor.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Portal del Asesor</a>
+      </nav>
+      <div class="sidebar-cta">
+        <div class="sidebar-cta-text">Escanear Recibo</div>
+        <div class="sidebar-cta-sub">Subí una foto de tu ticket</div>
+        <button class="sidebar-cta-btn" onclick="openModal('scan-modal')">+ Subir Ticket</button>
+      </div>
+      <div class="sidebar-footer">
+        <a href="perfil.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Mi Perfil</a>
+        <button class="sidebar-item" id="logout-btn" style="color:rgba(233,69,96,0.8)"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <header class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar gastos..." id="search-input">
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot"></span></button>
+          <div class="flex items-center gap-2">
+            <div class="navbar-avatar" id="navbar-avatar">XX</div>
+            <div class="navbar-user-info"><div class="name" id="navbar-name">—</div><div class="plan" id="navbar-plan">—</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
+          <div>
+            <h1 class="page-title">Gestión de Gastos</h1>
+            <p class="page-subtitle">Registrá, editá y analizá todos tus movimientos.</p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-outline btn-sm" onclick="openModal('scan-modal')">📷 Escanear Ticket</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('add-modal')">+ Nuevo Gasto</button>
+          </div>
+        </div>
+
+        <!-- Expense Stats -->
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+          <div class="stat-card"><div class="stat-label">Total Gastos</div><div class="stat-value" id="total-expenses">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Ingresos</div><div class="stat-value" id="total-income" style="color:var(--success)">—</div></div>
+          <div class="stat-card"><div class="stat-label">Balance</div><div class="stat-value" id="balance">—</div></div>
+        </div>
+
+        <!-- Tabla de gastos -->
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <h3 style="font-weight:700">Movimientos</h3>
+            <div class="tabs" style="margin-bottom:0;width:auto">
+              <button class="tab-btn active" onclick="filterExpenses('all',this)">Todos</button>
+              <button class="tab-btn" onclick="filterExpenses('expense',this)">Gastos</button>
+              <button class="tab-btn" onclick="filterExpenses('income',this)">Ingresos</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Comercio</th><th>Categoría</th><th>Fecha</th><th>Monto</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="expenses-table">
+                <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)"><span class="spinner spinner-dark"></span><br>Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD EXPENSE MODAL -->
+  <div class="modal-overlay hidden" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Nuevo Movimiento</h3>
+        <button class="modal-close" onclick="closeModal('add-modal')">&times;</button>
+      </div>
+      <div id="add-alert" class="alert hidden"></div>
+      <form id="add-form">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select id="add-type" class="form-input" style="cursor:pointer">
+            <option value="expense">Gasto</option>
+            <option value="income">Ingreso</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Comercio / Descripción</label>
+          <input type="text" id="add-merchant" class="form-input" placeholder="Ej: Carrefour" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">Monto</label>
+            <input type="number" id="add-amount" class="form-input" placeholder="0.00" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" id="add-date" class="form-input" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select id="add-category" class="form-input" style="cursor:pointer">
+            <option>Supermercado</option><option>Transporte</option><option>Restaurantes</option>
+            <option>Salud</option><option>Vivienda</option><option>Servicios</option>
+            <option>Suscripciones</option><option>Compras</option><option>Ingresos</option><option>Otros</option>
+          </select>
+        </div>
+        <button type="submit" id="add-btn" class="btn btn-primary w-full" style="justify-content:center;margin-top:8px">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCAN MODAL (OCR) -->
+  <div class="modal-overlay hidden" id="scan-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">📷 Escanear Ticket con IA</h3>
+        <button class="modal-close" onclick="closeModal('scan-modal')">&times;</button>
+      </div>
+      <p class="text-sm text-muted mb-4">Subí una foto de tu ticket y la IA extraerá automáticamente los datos.</p>
+      <div id="scan-alert" class="alert hidden"></div>
+      <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all 0.2s" id="drop-zone" onclick="document.getElementById('scan-file').click()">
+        <div style="font-size:2.5rem;margin-bottom:8px">📸</div>
+        <p style="font-weight:600;color:var(--text)">Arrastrá tu ticket aquí</p>
+        <p class="text-sm text-muted">o hacé clic para seleccionar</p>
+        <p class="text-xs text-muted mt-2">JPG, PNG o PDF — Máximo 5MB</p>
+        <input type="file" id="scan-file" accept="image/*,.pdf" style="display:none">
+      </div>
+      <div id="scan-preview" class="hidden mt-4" style="text-align:center">
+        <img id="scan-img" style="max-height:200px;border-radius:var(--radius);border:1px solid var(--border)">
+        <p class="text-sm text-muted mt-2" id="scan-filename">—</p>
+      </div>
+      <button id="scan-btn" class="btn btn-accent w-full mt-4 hidden" style="justify-content:center" onclick="processOCR()">🧠 Analizar con IA</button>
+      <div id="scan-result" class="hidden mt-4"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderNavbarUser();
+    const user = auth.getUser();
+    let allExpenses = [];
+    let currentFilter = 'all';
+
+    // Set default date
+    document.getElementById('add-date').valueAsDate = new Date();
+
+    // Load expenses
+    loadExpenses();
+
+    async function loadExpenses() {
+      try {
+        allExpenses = await api.get(`/expenses?userId=${user.id}`);
+        renderExpenses();
+        updateStats();
+      } catch (err) {
+        toast('Error al cargar gastos', 'error');
+      }
+    }
+
+    function renderExpenses() {
+      const tbody = document.getElementById('expenses-table');
+      let filtered = currentFilter === 'all' ? allExpenses : allExpenses.filter(e => e.type === currentFilter);
+
+      // Search filter
+      const search = document.getElementById('search-input').value.toLowerCase();
+      if (search) filtered = filtered.filter(e => e.merchant.toLowerCase().includes(search) || e.category.toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state" style="padding:40px"><div class="empty-state-icon">📋</div><p class="empty-state-title">Sin movimientos</p><p class="empty-state-desc">Agregá tu primer gasto o ingreso.</p></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.reverse().map(e => `
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:1.2rem">${categoryIcons[e.category] || '📦'}</span>
+            <strong>${e.merchant}</strong>
+          </div></td>
+          <td>${categoryChip(e.category)}</td>
+          <td class="text-muted">${formatDate(e.date)}</td>
+          <td><strong style="color:${e.type==='income'?'var(--success)':'var(--error)'}">${e.type==='income'?'+':'-'}${formatMoney(e.amount)}</strong></td>
+          <td>
+            <button class="btn btn-ghost btn-sm" style="color:var(--error);padding:4px 8px" onclick="deleteExpense(${e.id})" title="Eliminar">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateStats() {
+      const expenses = allExpenses.filter(e => e.type === 'expense');
+      const incomes = allExpenses.filter(e => e.type === 'income');
+      const totalExp = expenses.reduce((s, e) => s + Number(e.amount), 0);
+      const totalInc = incomes.reduce((s, e) => s + Number(e.amount), 0);
+      setText('#total-expenses', formatMoney(totalExp));
+      setText('#total-income', formatMoney(totalInc));
+      const balanceEl = document.getElementById('balance');
+      balanceEl.textContent = formatMoney(totalInc - totalExp);
+      balanceEl.style.color = totalInc - totalExp >= 0 ? 'var(--success)' : 'var(--error)';
+    }
+
+    function filterExpenses(type, btn) {
+      currentFilter = type;
+      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderExpenses();
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderExpenses);
+
+    // Add expense form
+    document.getElementById('add-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('add-btn');
+      const data = {
+        merchant: document.getElementById('add-merchant').value.trim(),
+        amount: parseFloat(document.getElementById('add-amount').value),
+        date: document.getElementById('add-date').value,
+        category: document.getElementById('add-category').value,
+        type: document.getElementById('add-type').value,
+        userId: user.id,
+      };
+
+      hideAlert('#add-alert');
+      if (!data.merchant) { showAlert('#add-alert', 'Ingresá un comercio/descripción'); return; }
+      if (!data.amount || data.amount <= 0) { showAlert('#add-alert', 'El monto debe ser mayor a 0'); return; }
+      if (!data.date) { showAlert('#add-alert', 'Seleccioná una fecha'); return; }
+
+      setLoading(btn, true);
+      try {
+        await api.post('/expenses', data);
+        closeModal('add-modal');
+        toast('Movimiento registrado correctamente');
+        document.getElementById('add-form').reset();
+        document.getElementById('add-date').valueAsDate = new Date();
+        loadExpenses();
+      } catch (err) {
+        showAlert('#add-alert', err.message || 'Error al guardar');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+
+    // Delete expense
+    async function deleteExpense(id) {
+      if (!confirm('¿Eliminar este movimiento?')) return;
+      try {
+        await api.delete(`/expenses/${id}`);
+        toast('Movimiento eliminado');
+        loadExpenses();
+      } catch (err) {
+        toast('Error al eliminar', 'error');
+      }
+    }
+
+    // OCR / Scan
+    let scanFileData = null;
+    document.getElementById('scan-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      scanFileData = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('scan-img').src = ev.target.result;
+        setText('#scan-filename', file.name);
+        show('#scan-preview');
+        show('#scan-btn');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Drag and drop
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; dropZone.style.background = 'rgba(233,69,96,0.04)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--border)'; dropZone.style.background = ''; });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = 'var(--border)';
+      dropZone.style.background = '';
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('scan-file').files = e.dataTransfer.files;
+        document.getElementById('scan-file').dispatchEvent(new Event('change'));
+      }
+    });
+
+    async function processOCR() {
+      const btn = document.getElementById('scan-btn');
+      setLoading(btn, true);
+      
+      // Simulate OCR processing (replace with real API call when OCR service is connected)
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Simulated OCR result
+      const results = [
+        { merchant: 'Carrefour Express', amount: 2340, date: new Date().toISOString().split('T')[0], category: 'Supermercado' },
+        { merchant: 'YPF Estación', amount: 850, date: new Date().toISOString().split('T')[0], category: 'Transporte' },
+        { merchant: 'Farmacia del Pueblo', amount: 1200, date: new Date().toISOString().split('T')[0], category: 'Salud' },
+      ];
+      const result = results[Math.floor(Math.random() * results.length)];
+
+      document.getElementById('scan-result').innerHTML = `
+        <div class="card-sm" style="background:var(--bg);border:1px solid var(--border)">
+          <p class="text-xs font-bold text-muted mb-2" style="text-transform:uppercase;letter-spacing:0.08em">📋 Datos extraídos por IA</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><span class="text-xs text-muted">Comercio</span><div style="font-weight:700">${result.merchant}</div></div>
+            <div><span class="text-xs text-muted">Monto</span><div style="font-weight:700;color:var(--accent)">${formatMoney(result.amount)}</div></div>
+            <div><span class="text-xs text-muted">Fecha</span><div style="font-weight:600">${formatDate(result.date)}</div></div>
+            <div><span class="text-xs text-muted">Categoría</span><div>${categoryChip(result.category)}</div></div>
+          </div>
+          <button class="btn btn-primary w-full mt-3 btn-sm" style="justify-content:center" onclick="saveOCRResult('${result.merchant}',${result.amount},'${result.date}','${result.category}')">✓ Guardar este gasto</button>
+        </div>
+      `;
+      show('#scan-result');
+      setLoading(btn, false);
+    }
+
+    async function saveOCRResult(merchant, amount, date, category) {
+      try {
+        await api.post('/expenses', { merchant, amount, date, category, type: 'expense', userId: user.id });
+        closeModal('scan-modal');
+        toast('Gasto del ticket guardado correctamente');
+        hide('#scan-preview');
+        hide('#scan-btn');
+        hide('#scan-result');
+        loadExpenses();
+      } catch (err) {
+        toast('Error al guardar', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel — Sanctuary AI</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </div>
+        <div>
+          <div class="sidebar-logo-text">Sanctuary AI</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-title">Principal</div>
+        <a href="dashboard.html" class="sidebar-item active" id="nav-panel">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Panel
+        </a>
+        <a href="gastos.html" class="sidebar-item" id="nav-gastos">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Gastos
+        </a>
+        <a href="insights.html" class="sidebar-item" id="nav-insights">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Perspectivas IA
+        </a>
+        <a href="asesor.html" class="sidebar-item" id="nav-asesor">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Portal del Asesor
+        </a>
+      </nav>
+
+      <div class="sidebar-cta">
+        <div class="sidebar-cta-text">Escanear Recibo</div>
+        <div class="sidebar-cta-sub">Subí una foto de tu ticket</div>
+        <a href="gastos.html" class="sidebar-cta-btn">+ Subir Ticket</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="perfil.html" class="sidebar-item">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          Mi Perfil
+        </a>
+        <button class="sidebar-item" id="logout-btn" style="color:rgba(233,69,96,0.8)">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <!-- NAVBAR -->
+      <header class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Buscar análisis, facturas o perspectivas...">
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn-icon" title="Notificaciones">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-dot"></span>
+          </button>
+          <div class="dropdown">
+            <button class="flex items-center gap-2" data-dropdown="user-menu" style="padding:4px 8px;border-radius:100px;transition:background 0.2s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='transparent'">
+              <div class="navbar-avatar" id="navbar-avatar">XX</div>
+              <div class="navbar-user-info">
+                <div class="name" id="navbar-name">—</div>
+                <div class="plan" id="navbar-plan">—</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-menu hidden" id="user-menu" style="width:240px">
+              <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+                <div style="font-weight:700;font-size:0.9rem" id="dropdown-name">—</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)" id="dropdown-email">—</div>
+                <div class="mt-1"><span class="badge" id="dropdown-badge">—</span></div>
+              </div>
+              <a href="perfil.html" class="dropdown-item">👤 Mi Perfil</a>
+              <a href="gastos.html" class="dropdown-item">📊 Mi Actividad</a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item danger" id="logout-btn">🚪 Cerrar Sesión</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <div class="page-content">
+        <div class="page-header">
+          <h1 class="page-title" id="greeting">Buenos días</h1>
+          <p class="page-subtitle">Tu resumen financiero inteligente del día.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon accent">💰</div>
+            <div class="stat-label">Gasto Mensual</div>
+            <div class="stat-value" id="stat-spent">—</div>
+            <div class="stat-change down" id="stat-spent-change"><span>↗</span> vs mes anterior</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon success">📈</div>
+            <div class="stat-label">Ingresos</div>
+            <div class="stat-value" id="stat-income">—</div>
+            <div class="stat-change up"><span>↗</span> Registrado este mes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">💳</div>
+            <div class="stat-label">Transacciones</div>
+            <div class="stat-value" id="stat-txns">—</div>
+            <div class="stat-change"><span>📋</span> Este mes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">🎯</div>
+            <div class="stat-label">Presupuesto Restante</div>
+            <div class="stat-value" id="stat-budget">—</div>
+            <div class="stat-change" id="stat-budget-pct">—</div>
+          </div>
+        </div>
+
+        <!-- Two columns -->
+        <div class="grid-2">
+          <!-- Recent expenses -->
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+              <h3 style="font-weight:700;font-size:1rem">Últimos Gastos</h3>
+              <a href="gastos.html" class="btn btn-sm btn-ghost" style="color:var(--accent)">Ver todos →</a>
+            </div>
+            <div id="recent-expenses">
+              <div style="padding:32px 0;text-align:center;color:var(--text-muted)">
+                <span class="spinner spinner-dark"></span>
+                <p class="text-sm mt-2">Cargando gastos...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Insights -->
+          <div>
+            <div class="insight-card mb-4">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <span style="font-size:1.4rem">🤖</span>
+                <h3 class="insight-title" style="margin-bottom:0">IA del Santuario Financiero</h3>
+              </div>
+              <p class="insight-text" id="ai-tip">Analizando tus patrones de gasto para brindarte recomendaciones personalizadas...</p>
+            </div>
+
+            <!-- Categories -->
+            <div class="card">
+              <h3 style="font-weight:700;font-size:1rem;margin-bottom:16px">Gastos por Categoría</h3>
+              <div id="category-breakdown">
+                <div style="padding:20px 0;text-align:center;color:var(--text-muted)">
+                  <span class="spinner spinner-dark"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderNavbarUser();
+
+    const user = auth.getUser();
+
+    // Greeting
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+    setText('#greeting', `${greet}, ${user.firstName || 'Usuario'}`);
+
+    // Fill user dropdown
+    setText('#dropdown-name', `${user.firstName} ${user.lastName}`);
+    setText('#dropdown-email', user.email);
+    const badge = document.getElementById('dropdown-badge');
+    if (user.plan === 'plus') {
+      badge.className = 'badge badge-premium';
+      badge.textContent = '👑 Plan Plus';
+    } else {
+      badge.className = 'badge badge-basic';
+      badge.textContent = '📋 Plan Básico';
+    }
+
+    // Load dashboard data
+    loadDashboard();
+
+    async function loadDashboard() {
+      try {
+        const [dashData, expenses] = await Promise.all([
+          api.get(`/dashboard?userId=${user.id}`),
+          api.get(`/expenses?userId=${user.id}`),
+        ]);
+
+        // Stats
+        const totalExpenses = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + Number(e.amount), 0);
+        const totalIncome = expenses.filter(e => e.type === 'income').reduce((s, e) => s + Number(e.amount), 0);
+        const budget = user.budget || 4200;
+        const remaining = budget - totalExpenses;
+        const pct = Math.round((remaining / budget) * 100);
+
+        setText('#stat-spent', formatMoney(totalExpenses));
+        setText('#stat-income', formatMoney(totalIncome));
+        setText('#stat-txns', expenses.length);
+        setText('#stat-budget', formatMoney(remaining));
+        const budgetEl = document.getElementById('stat-budget-pct');
+        budgetEl.innerHTML = `<span>${pct >= 0 ? '✓' : '⚠'}</span> ${pct}% restante`;
+        budgetEl.className = `stat-change ${pct >= 20 ? 'up' : 'down'}`;
+
+        // Recent expenses
+        const recentEl = document.getElementById('recent-expenses');
+        const recent = expenses.filter(e => e.type === 'expense').slice(-5).reverse();
+        if (recent.length === 0) {
+          recentEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p class="empty-state-title">Sin gastos aún</p><p class="empty-state-desc">Agregá tu primer gasto para ver el resumen.</p><a href="gastos.html" class="btn btn-primary btn-sm">+ Agregar gasto</a></div>';
+        } else {
+          recentEl.innerHTML = recent.map(e => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:38px;height:38px;background:var(--bg);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.1rem">${categoryIcons[e.category] || '📦'}</div>
+                <div>
+                  <div style="font-weight:600;font-size:0.875rem">${e.merchant}</div>
+                  <div class="text-xs text-muted">${formatDate(e.date)}</div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:700;color:var(--error);font-size:0.9rem">-${formatMoney(e.amount)}</div>
+                ${categoryChip(e.category)}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Categories
+        const catEl = document.getElementById('category-breakdown');
+        const categories = {};
+        expenses.filter(e => e.type === 'expense').forEach(e => {
+          categories[e.category] = (categories[e.category] || 0) + Number(e.amount);
+        });
+        const sorted = Object.entries(categories).sort(([,a],[,b]) => b - a);
+        if (sorted.length === 0) {
+          catEl.innerHTML = '<p class="text-sm text-muted text-center">Sin datos todavía</p>';
+        } else {
+          catEl.innerHTML = sorted.map(([cat, amt]) => {
+            const pct = Math.round((amt / totalExpenses) * 100);
+            return `
+              <div style="margin-bottom:14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <span style="font-size:0.82rem;font-weight:600">${categoryIcons[cat] || '📦'} ${cat}</span>
+                  <span class="text-sm font-bold">${formatMoney(amt)} <span class="text-muted">(${pct}%)</span></span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // AI tip
+        const tips = [
+          `Tu fondo de emergencia actual cubre 4.2 meses. Si reasignás $200 de cenas fuera a ahorros, alcanzarás tu meta de 6 meses para septiembre.`,
+          `Detectamos que tus gastos en suscripciones suman ${formatMoney(expenses.filter(e=>e.category==='Suscripciones').reduce((s,e)=>s+Number(e.amount),0))}. Revisá si todas las usás.`,
+          `Tu gasto en Supermercado es tu categoría más alta. Considerá comprar en promociones para reducirlo un 15%.`,
+        ];
+        setText('#ai-tip', tips[Math.floor(Math.random() * tips.length)]);
+
+      } catch (err) {
+        console.error('Dashboard error:', err);
+        toast('Error al cargar datos del dashboard', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
