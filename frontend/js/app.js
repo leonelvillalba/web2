@@ -2,7 +2,9 @@
 // SANCTUARY AI — API & Auth JavaScript
 // =========================================
 
-const API_BASE = 'https://sanctuary-ai-backend.onrender.com/api';
+// Auto-detect: si estoy en localhost uso backend local, si no uso Render
+const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
+const API_BASE = isLocal ? 'http://localhost:3001/api' : 'https://sanctuary-ai-backend.onrender.com/api';
 
 // ─── API HELPER ───
 const api = {
