@@ -16,7 +16,8 @@
         <a href="dashboard.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Panel</a>
         <a href="gastos.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Gastos</a>
         <a href="insights.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Perspectivas IA</a>
-        <a href="asesor.html" class="sidebar-item active"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Portal del Asesor</a>
+        <a href="asesor.html" class="sidebar-item active advisor-only"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Portal del Asesor</a>
+        <a href="soporte.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Soporte</a>
       </nav>
       <div class="sidebar-footer">
         <a href="perfil.html" class="sidebar-item"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Mi Perfil</a>
@@ -43,10 +44,11 @@
 
         <div id="advisor-access" class="hidden">
           <!-- Advisor stats -->
-          <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:28px">
+          <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:28px">
             <div class="stat-card"><div class="stat-icon purple">👥</div><div class="stat-label">Clientes</div><div class="stat-value" id="adv-clients">—</div></div>
             <div class="stat-card"><div class="stat-icon accent">💰</div><div class="stat-label">Total Gastos</div><div class="stat-value" id="adv-total">—</div></div>
-            <div class="stat-card"><div class="stat-icon success">📊</div><div class="stat-label">Promedio por Cliente</div><div class="stat-value" id="adv-avg">—</div></div>
+            <div class="stat-card"><div class="stat-icon success">📈</div><div class="stat-label">Total Ingresos</div><div class="stat-value" id="adv-income">—</div></div>
+            <div class="stat-card"><div class="stat-icon blue">📊</div><div class="stat-label">Promedio Gasto</div><div class="stat-value" id="adv-avg">—</div></div>
           </div>
 
           <!-- Clients table -->
@@ -56,7 +58,7 @@
             </div>
             <div class="table-wrapper">
               <table>
-                <thead><tr><th>Cliente</th><th>Email</th><th>Plan</th><th>Gastos Totales</th><th>Salud</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Email</th><th>Plan</th><th>Gastos</th><th>Ingresos</th><th>Transacciones</th><th>Salud</th></tr></thead>
                 <tbody id="clients-table">
                   <tr><td colspan="5" style="text-align:center;padding:40px"><span class="spinner spinner-dark"></span></td></tr>
                 </tbody>
@@ -89,7 +91,7 @@
     const user = auth.getUser();
 
     // Check if user is advisor
-    if (user.role === 'advisor' || user.plan === 'advisor') {
+    if (user.role === 'advisor') {
       show('#advisor-access');
       hide('#no-advisor-access');
       loadClients();
@@ -104,29 +106,42 @@
         const table = document.getElementById('clients-table');
         
         let totalGastos = 0;
+        let totalIngresos = 0;
         const rows = clients.map(c => {
-          const gastos = c.totalExpenses || 0;
+          const gastos = Number(c.totalExpenses) || 0;
+          const ingresos = Number(c.totalIncome) || 0;
+          const txns = c.transactionCount || 0;
+          const score = c.healthScore || 50;
           totalGastos += gastos;
-          const score = Math.min(99, Math.round(Math.random() * 30 + 65));
-          const initials = (c.firstName?.[0]||'') + (c.lastName?.[0]||'');
+          totalIngresos += ingresos;
+          const initials = (c.firstName?.[0]||'?') + (c.lastName?.[0]||'?');
+          const planLabel = c.plan === 'plus'
+            ? '<span class="badge badge-premium">👑 Plus</span>'
+            : '<span class="badge badge-basic">📋 Básico</span>';
           return `
             <tr>
               <td><div style="display:flex;align-items:center;gap:10px">
                 <div class="avatar avatar-sm">${initials}</div>
-                <strong>${c.firstName} ${c.lastName}</strong>
+                <div>
+                  <div style="font-weight:700">${c.firstName} ${c.lastName}</div>
+                  <div class="text-xs text-muted">${c.location || 'Sin ubicación'}</div>
+                </div>
               </div></td>
               <td class="text-muted">${c.email}</td>
-              <td>${c.plan === 'plus' ? '<span class="badge badge-premium">👑 Plus</span>' : '<span class="badge badge-basic">Básico</span>'}</td>
-              <td style="font-weight:700">${formatMoney(gastos)}</td>
-              <td><span class="badge ${score >= 70 ? 'badge-success' : 'badge-error'}">${score}%</span></td>
+              <td>${planLabel}</td>
+              <td style="font-weight:700;color:var(--error)">${formatMoney(gastos)}</td>
+              <td style="font-weight:700;color:var(--success)">${formatMoney(ingresos)}</td>
+              <td style="text-align:center">${txns}</td>
+              <td><span class="badge ${score >= 50 ? 'badge-success' : 'badge-error'}">${score}%</span></td>
             </tr>
           `;
         });
 
-        table.innerHTML = rows.join('') || '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">No hay clientes asignados</td></tr>';
+        table.innerHTML = rows.join('') || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No hay clientes registrados</td></tr>';
 
         setText('#adv-clients', clients.length);
         setText('#adv-total', formatMoney(totalGastos));
+        setText('#adv-income', formatMoney(totalIngresos));
         setText('#adv-avg', formatMoney(clients.length > 0 ? totalGastos / clients.length : 0));
       } catch (err) {
         console.error(err);

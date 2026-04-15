@@ -12,27 +12,37 @@ export class AdvisorService {
   ) {}
 
   async getClients() {
+    // Traer todos los usuarios (no asesores)
     const users = await this.usersRepo.find({ where: { role: 'user' } });
 
     const clients = await Promise.all(
       users.map(async (user) => {
         const expenses = await this.expensesRepo.find({ where: { userId: user.id } });
-        const totalSpending = expenses
+
+        const totalExpenses = expenses
           .filter((e) => e.type === 'expense')
           .reduce((sum, e) => sum + Number(e.amount), 0);
 
-        const adherence = user.budget > 0
-          ? Math.round((totalSpending / Number(user.budget)) * 100)
-          : 0;
+        const totalIncome = expenses
+          .filter((e) => e.type === 'income')
+          .reduce((sum, e) => sum + Number(e.amount), 0);
+
+        const transactionCount = expenses.length;
+
+        // Salud financiera: % de presupuesto usado
+        const budget = Number(user.budget) || 0;
+        const healthScore = budget > 0
+          ? Math.max(0, Math.min(99, Math.round(100 - (totalExpenses / budget) * 100)))
+          : 50;
+
+        const { password, ...userWithoutPw } = user;
 
         return {
-          id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          focus: 'Crecimiento',
-          assets: Math.round(142500 - totalSpending),
-          change: 12.4,
-          budgetAdherence: adherence,
-          status: adherence <= 100 ? 'Excelente' : 'Fuera de presupuesto',
+          ...userWithoutPw,
+          totalExpenses,
+          totalIncome,
+          transactionCount,
+          healthScore,
         };
       }),
     );
