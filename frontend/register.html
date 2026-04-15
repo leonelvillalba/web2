@@ -37,11 +37,21 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
             <label class="form-label">Contraseña</label>
-            <input type="password" id="reg-password" class="form-input" placeholder="Mínimo 6 caracteres" required>
+            <div style="position:relative">
+              <input type="password" id="reg-password" class="form-input" placeholder="Mínimo 6 caracteres" required style="padding-right:48px">
+              <button type="button" onclick="togglePassword('reg-password',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Confirmar Contraseña</label>
-            <input type="password" id="reg-confirm" class="form-input" placeholder="Repetir contraseña" required>
+            <div style="position:relative">
+              <input type="password" id="reg-confirm" class="form-input" placeholder="Repetir contraseña" required style="padding-right:48px">
+              <button type="button" onclick="togglePassword('reg-confirm',this)" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
         </div>
 

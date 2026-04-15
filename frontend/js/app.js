@@ -14,10 +14,17 @@ const api = {
       headers: { 'Content-Type': 'application/json' },
     };
     if (data) opts.body = JSON.stringify(data);
-    const res = await fetch(`${API_BASE}${endpoint}`, opts);
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || json.message || 'Error del servidor');
-    return json;
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, opts);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || json.message || 'Error del servidor');
+      return json;
+    } catch (err) {
+      if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
+        throw new Error('No se pudo conectar al servidor. Puede estar iniciando (espera 30 seg) o sin conexión a internet.');
+      }
+      throw err;
+    }
   },
   get(endpoint)         { return this.request('GET', endpoint); },
   post(endpoint, data)  { return this.request('POST', endpoint, data); },
@@ -60,6 +67,20 @@ const $$ = (sel) => document.querySelectorAll(sel);
 function show(el) { if (typeof el === 'string') el = $(el); el && el.classList.remove('hidden'); }
 function hide(el) { if (typeof el === 'string') el = $(el); el && el.classList.add('hidden'); }
 function toggle(el) { if (typeof el === 'string') el = $(el); el && el.classList.toggle('hidden'); }
+
+// ─── PASSWORD VISIBILITY ───
+function togglePassword(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (!input) return;
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  // Swap icon: eye vs eye-off
+  btn.innerHTML = isHidden
+    ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
+
 
 function setHTML(sel, html) { const el = $(sel); if (el) el.innerHTML = html; }
 function setText(sel, text) { const el = $(sel); if (el) el.textContent = text; }
