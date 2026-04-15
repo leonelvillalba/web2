@@ -87,6 +87,37 @@
           </form>
         </div>
 
+        <!-- Apariencia -->
+        <div class="card mb-6">
+          <h3 style="font-weight:700;margin-bottom:4px">🎨 Apariencia</h3>
+          <p class="text-sm text-muted" style="margin-bottom:0">Personalizá el aspecto de tu plataforma.</p>
+
+          <div class="settings-section">
+            <div class="settings-title">Modo Oscuro</div>
+            <div class="settings-desc">Cambiá entre el modo claro y oscuro.</div>
+            <div class="theme-switch" onclick="theme.toggleMode()">
+              <div class="theme-switch-track" id="dark-toggle">
+                <div class="theme-switch-thumb"></div>
+              </div>
+              <span class="theme-switch-label" id="dark-label">Modo Claro activado</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">Color Principal</div>
+            <div class="settings-desc">Elegí el color de los botones y acentos de la plataforma.</div>
+            <div class="color-swatches">
+              <div class="color-swatch" data-color="rojo" style="background:#e94560" title="Rojo" onclick="theme.setAccent('rojo')"></div>
+              <div class="color-swatch" data-color="azul" style="background:#3b82f6" title="Azul" onclick="theme.setAccent('azul')"></div>
+              <div class="color-swatch" data-color="verde" style="background:#10b981" title="Verde" onclick="theme.setAccent('verde')"></div>
+              <div class="color-swatch" data-color="violeta" style="background:#8b5cf6" title="Violeta" onclick="theme.setAccent('violeta')"></div>
+              <div class="color-swatch" data-color="naranja" style="background:#f97316" title="Naranja" onclick="theme.setAccent('naranja')"></div>
+              <div class="color-swatch" data-color="rosa" style="background:#ec4899" title="Rosa" onclick="theme.setAccent('rosa')"></div>
+              <div class="color-swatch" data-color="cyan" style="background:#06b6d4" title="Cyan" onclick="theme.setAccent('cyan')"></div>
+            </div>
+          </div>
+        </div>
+
         <!-- Danger zone -->
         <div class="card" style="border-color:rgba(233,69,96,0.3)">
           <h3 style="font-weight:700;color:var(--error);margin-bottom:8px">⚠️ Zona de Peligro</h3>
@@ -150,6 +181,9 @@
         setLoading(btn, false);
       }
     });
+
+    // Sync theme UI on load
+    theme.apply();
   </script>
 </body>
 </html>
