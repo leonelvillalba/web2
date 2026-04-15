@@ -148,6 +148,18 @@ function renderNavbarUser() {
   if (planEl) planEl.textContent = planLabel;
 }
 
+// ─── ROLE-BASED UI ───
+// Oculta elementos con clase .advisor-only si el usuario no es asesor
+function applyRoleUI() {
+  const user = auth.getUser();
+  if (!user) return;
+  const isAdvisor = user.role === 'advisor' || user.plan === 'advisor';
+  document.querySelectorAll('.advisor-only').forEach(el => {
+    el.style.display = isAdvisor ? '' : 'none';
+  });
+}
+
+
 // ─── MODAL HELPERS ───
 function openModal(id) { show(`#${id}`); }
 function closeModal(id) { hide(`#${id}`); }
