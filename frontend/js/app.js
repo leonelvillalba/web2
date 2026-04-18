@@ -1,12 +1,12 @@
 // =========================================
-// SANCTUARY AI â€” API & Auth JavaScript
+// SANCTUARY AI — API & Auth JavaScript
 // =========================================
 
 // Auto-detect: si estoy en localhost uso backend local, si no uso Render
 const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
 const API_BASE = isLocal ? 'http://localhost:3001/api' : 'https://sanctuary-ai-backend.onrender.com/api';
 
-// â”€â”€â”€ API HELPER â”€â”€â”€
+// ─── API HELPER ───
 const api = {
   async request(method, endpoint, data = null) {
     const opts = {
@@ -21,7 +21,7 @@ const api = {
       return json;
     } catch (err) {
       if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
-        throw new Error('No se pudo conectar al servidor. Puede estar iniciando (espera 30 seg) o sin conexiÃ³n a internet.');
+        throw new Error('No se pudo conectar al servidor. Puede estar iniciando (espera 30 seg) o sin conexión a internet.');
       }
       throw err;
     }
@@ -32,7 +32,7 @@ const api = {
   delete(endpoint)      { return this.request('DELETE', endpoint); },
 };
 
-// â”€â”€â”€ AUTH â”€â”€â”€
+// ─── AUTH ───
 const auth = {
   getUser() {
     try { return JSON.parse(localStorage.getItem('sanctuary_user')); } catch { return null; }
@@ -60,7 +60,7 @@ const auth = {
   },
 };
 
-// â”€â”€â”€ DOM HELPERS â”€â”€â”€
+// ─── DOM HELPERS ───
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -68,7 +68,7 @@ function show(el) { if (typeof el === 'string') el = $(el); el && el.classList.r
 function hide(el) { if (typeof el === 'string') el = $(el); el && el.classList.add('hidden'); }
 function toggle(el) { if (typeof el === 'string') el = $(el); el && el.classList.toggle('hidden'); }
 
-// â”€â”€â”€ PASSWORD VISIBILITY â”€â”€â”€
+// ─── PASSWORD VISIBILITY ───
 function togglePassword(inputId, btnId) {
   const input = document.getElementById(inputId);
   const btn = document.getElementById(btnId);
@@ -96,7 +96,7 @@ function showAlert(sel, msg, type = 'error') {
 }
 function hideAlert(sel) { hide(sel); }
 
-// â”€â”€â”€ TOAST â”€â”€â”€
+// ─── TOAST ───
 function toast(msg, type = 'success') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -106,12 +106,12 @@ function toast(msg, type = 'success') {
   }
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  t.innerHTML = `<span>${type === 'success' ? 'âœ“' : type === 'error' ? 'âœ•' : 'â„¹'}</span> ${msg}`;
+  t.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${msg}`;
   container.appendChild(t);
   setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-// â”€â”€â”€ LOADING STATE â”€â”€â”€
+// ─── LOADING STATE ───
 function setLoading(btn, loading) {
   if (loading) {
     btn.dataset.originalText = btn.innerHTML;
@@ -123,20 +123,20 @@ function setLoading(btn, loading) {
   }
 }
 
-// â”€â”€â”€ MONEY FORMAT â”€â”€â”€
+// ─── MONEY FORMAT ───
 function formatMoney(amount, currency = 'ARS') {
   const user = auth.getUser();
   const curr = user?.currency || currency;
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: curr, maximumFractionDigits: 0 }).format(amount);
 }
 
-// â”€â”€â”€ DATE FORMAT â”€â”€â”€
+// ─── DATE FORMAT ───
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// â”€â”€â”€ CATEGORY COLORS â”€â”€â”€
+// ─── CATEGORY COLORS ───
 const categoryClass = {
   'Supermercado': 'cat-supermercado', 'Transporte': 'cat-transporte',
   'Restaurantes': 'cat-restaurantes', 'Salud': 'cat-salud',
@@ -145,22 +145,22 @@ const categoryClass = {
   'Ingresos': 'cat-ingresos',
 };
 const categoryIcons = {
-  'Supermercado': 'ðŸ›’', 'Transporte': 'ðŸšŒ', 'Restaurantes': 'ðŸ½ï¸', 'Salud': 'ðŸ’Š',
-  'Vivienda': 'ðŸ ', 'Servicios': 'ðŸ“¡', 'Suscripciones': 'ðŸ“±', 'Compras': 'ðŸ›ï¸',
-  'Ingresos': 'ðŸ’°', 'Otros': 'ðŸ“¦',
+  'Supermercado': '🛒', 'Transporte': '🚌', 'Restaurantes': '🍽️', 'Salud': '💊',
+  'Vivienda': '🏠', 'Servicios': '📡', 'Suscripciones': '📱', 'Compras': '🛍️',
+  'Ingresos': '💰', 'Otros': '📦',
 };
 function categoryChip(cat) {
   const cls = categoryClass[cat] || 'cat-otros';
-  const icon = categoryIcons[cat] || 'ðŸ“¦';
+  const icon = categoryIcons[cat] || '📦';
   return `<span class="category-chip ${cls}">${icon} ${cat}</span>`;
 }
 
-// â”€â”€â”€ NAVBAR USER â”€â”€â”€
+// ─── NAVBAR USER ───
 function renderNavbarUser() {
   const user = auth.getUser();
   if (!user) return;
   const initials = (user.firstName?.[0] || '') + (user.lastName?.[0] || '');
-  const planLabel = user.plan === 'plus' ? 'ðŸ‘‘ Premium' : 'ðŸ“‹ BÃ¡sico';
+  const planLabel = user.plan === 'plus' ? '👑 Premium' : '📋 Básico';
   const avatarEl = document.getElementById('navbar-avatar');
   const nameEl = document.getElementById('navbar-name');
   const planEl = document.getElementById('navbar-plan');
@@ -169,7 +169,7 @@ function renderNavbarUser() {
   if (planEl) planEl.textContent = planLabel;
 }
 
-// â”€â”€â”€ ROLE-BASED UI â”€â”€â”€
+// ─── ROLE-BASED UI ───
 // Oculta elementos con clase .advisor-only si el usuario no es asesor
 function applyRoleUI() {
   const user = auth.getUser();
@@ -181,7 +181,7 @@ function applyRoleUI() {
 }
 
 
-// â”€â”€â”€ MODAL HELPERS â”€â”€â”€
+// ─── MODAL HELPERS ───
 function openModal(id) { show(`#${id}`); }
 function closeModal(id) { hide(`#${id}`); }
 document.addEventListener('click', (e) => {
@@ -190,7 +190,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// â”€â”€â”€ DROPDOWN TOGGLE â”€â”€â”€
+// ─── DROPDOWN TOGGLE ───
 document.addEventListener('click', (e) => {
   const trigger = e.target.closest('[data-dropdown]');
   const menu = e.target.closest('.dropdown-menu');
@@ -207,14 +207,14 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// â”€â”€â”€ LOGOUT â”€â”€â”€
+// ─── LOGOUT ───
 document.addEventListener('click', (e) => {
   if (e.target.id === 'logout-btn' || e.target.closest('#logout-btn')) {
     auth.logout();
   }
 });
 
-// â”€â”€â”€ THEME SYSTEM â”€â”€â”€
+// ─── THEME SYSTEM ───
 const ACCENT_COLORS = {
   rojo:     { accent: '#e94560', secondary: '#533483' },
   azul:     { accent: '#3b82f6', secondary: '#1d4ed8' },
@@ -271,18 +271,18 @@ const theme = {
 // Apply theme on every page load
 theme.apply();
 
-// â”€â”€â”€ NOTIFICATION SYSTEM â”€â”€â”€
+// ─── NOTIFICATION SYSTEM ───
 const notifications = {
   _key: 'sanctuary_notifications',
 
   _defaults() {
     const now = Date.now();
     return [
-      { id: 1, type: 'warning', icon: 'âš ï¸', title: 'Presupuesto al 80%', desc: 'Ya usaste el 80% de tu presupuesto mensual. Quedan $840 disponibles.', time: now - 1000 * 60 * 15, unread: true },
-      { id: 2, type: 'success', icon: 'âœ…', title: 'Ingreso registrado', desc: 'Se registrÃ³ un nuevo ingreso de $85,000 en tu cuenta.', time: now - 1000 * 60 * 60 * 2, unread: true },
-      { id: 3, type: 'info', icon: 'ðŸ¤–', title: 'Perspectiva de IA disponible', desc: 'Analizamos tus gastos del mes. TenÃ©s una nueva recomendaciÃ³n personalizada.', time: now - 1000 * 60 * 60 * 24, unread: true },
-      { id: 4, type: 'info', icon: 'ðŸ“Š', title: 'Resumen semanal listo', desc: 'Tu resumen de gastos de la semana pasada estÃ¡ disponible para revisar.', time: now - 1000 * 60 * 60 * 48, unread: false },
-      { id: 5, type: 'warning', icon: 'ðŸ’³', title: 'Gasto inusual detectado', desc: 'Detectamos un gasto en Restaurantes un 40% mayor al promedio de los Ãºltimos meses.', time: now - 1000 * 60 * 60 * 72, unread: false },
+      { id: 1, type: 'warning', icon: '⚠️', title: 'Presupuesto al 80%', desc: 'Ya usaste el 80% de tu presupuesto mensual. Quedan $840 disponibles.', time: now - 1000 * 60 * 15, unread: true },
+      { id: 2, type: 'success', icon: '✅', title: 'Ingreso registrado', desc: 'Se registró un nuevo ingreso de $85,000 en tu cuenta.', time: now - 1000 * 60 * 60 * 2, unread: true },
+      { id: 3, type: 'info', icon: '🤖', title: 'Perspectiva de IA disponible', desc: 'Analizamos tus gastos del mes. Tenés una nueva recomendación personalizada.', time: now - 1000 * 60 * 60 * 24, unread: true },
+      { id: 4, type: 'info', icon: '📊', title: 'Resumen semanal listo', desc: 'Tu resumen de gastos de la semana pasada está disponible para revisar.', time: now - 1000 * 60 * 60 * 48, unread: false },
+      { id: 5, type: 'warning', icon: '💳', title: 'Gasto inusual detectado', desc: 'Detectamos un gasto en Restaurantes un 40% mayor al promedio de los últimos meses.', time: now - 1000 * 60 * 60 * 72, unread: false },
     ];
   },
 
@@ -326,7 +326,7 @@ const notifications = {
 
   render(list) {
     if (list.length === 0) {
-      return `<div class="notif-empty"><div class="notif-empty-icon">ðŸ””</div>Sin notificaciones nuevas</div>`;
+      return `<div class="notif-empty"><div class="notif-empty-icon">🔔</div>Sin notificaciones nuevas</div>`;
     }
     return list.map(n => `
       <div class="notif-item ${n.unread ? 'unread' : ''}" data-notif-id="${n.id}">
@@ -400,7 +400,7 @@ function initNotifications() {
   });
 }
 
-// Init on DOMContentLoaded (o inmediatamente si ya cargÃ³)
+// Init on DOMContentLoaded (o inmediatamente si ya cargó)
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initNotifications);
 } else {
