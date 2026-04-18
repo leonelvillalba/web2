@@ -180,6 +180,95 @@ function applyRoleUI() {
   });
 }
 
+// ─── PLAN MANAGEMENT ───
+const plans = {
+  isPremium() {
+    const user = auth.getUser();
+    return user && user.plan === 'plus';
+  },
+  isBasic() {
+    return !this.isPremium();
+  },
+  // OCR scan counter (3/day for basic)
+  getScanCount() {
+    const today = new Date().toISOString().split('T')[0];
+    const data = JSON.parse(localStorage.getItem('sanctuary_scans') || '{}');
+    return data[today] || 0;
+  },
+  addScan() {
+    const today = new Date().toISOString().split('T')[0];
+    const data = JSON.parse(localStorage.getItem('sanctuary_scans') || '{}');
+    data[today] = (data[today] || 0) + 1;
+    localStorage.setItem('sanctuary_scans', JSON.stringify(data));
+    return data[today];
+  },
+  canScan() {
+    if (this.isPremium()) return true;
+    return this.getScanCount() < 3;
+  },
+  scansRemaining() {
+    if (this.isPremium()) return '∞';
+    return Math.max(0, 3 - this.getScanCount());
+  },
+  // Show upgrade modal
+  showUpgradePrompt(feature) {
+    const msgs = {
+      'scan': 'Alcanzaste el límite de 3 escaneos diarios.',
+      'ai': 'El Asistente IA personalizado es exclusivo del Plan Plus.',
+      'pdf': 'La exportación PDF es exclusiva del Plan Plus.',
+      'stats': 'Las estadísticas avanzadas son exclusivas del Plan Plus.',
+      'default': 'Esta función es exclusiva del Plan Plus.'
+    };
+    const msg = msgs[feature] || msgs['default'];
+    // Create/show upgrade modal
+    let modal = document.getElementById('upgrade-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'upgrade-modal';
+      modal.className = 'modal-overlay';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div class="modal" style="max-width:440px;text-align:center">
+        <div style="font-size:3rem;margin-bottom:12px">👑</div>
+        <h2 style="font-weight:800;font-size:1.3rem;margin-bottom:8px">Mejorá a Plan Plus</h2>
+        <p class="text-muted" style="margin-bottom:20px;line-height:1.6">${msg}</p>
+        <div style="background:var(--bg);border-radius:var(--radius);padding:16px;margin-bottom:20px;text-align:left">
+          <div style="font-weight:700;font-size:0.85rem;margin-bottom:10px">Con Plan Plus obtenés:</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:0.82rem">
+            <div>✅ Escaneos ilimitados de tickets</div>
+            <div>✅ Asistente IA personalizado</div>
+            <div>✅ Estadísticas avanzadas</div>
+            <div>✅ Exportación de informes PDF</div>
+            <div>✅ Soporte prioritario</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" style="flex:1" onclick="closeModal('upgrade-modal')">Quizás después</button>
+          <button class="btn btn-accent" style="flex:1" onclick="toast('Módulo de pagos próximamente','info');closeModal('upgrade-modal')">Mejorar — $4.99/mes</button>
+        </div>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  },
+};
+
+// Apply plan-based UI: hide .plus-only for basic users
+function applyPlanUI() {
+  document.querySelectorAll('.plus-only').forEach(el => {
+    if (plans.isBasic()) {
+      el.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('.basic-limit').forEach(el => {
+    if (plans.isPremium()) {
+      el.style.display = 'none';
+    }
+  });
+}
+
+
 
 // ─── MODAL HELPERS ───
 function openModal(id) { show(`#${id}`); }
@@ -289,10 +378,13 @@ const notifications = {
   getAll() {
     try {
       const stored = localStorage.getItem(this._key);
-      if (stored) return JSON.parse(stored);
+      const ver = localStorage.getItem(this._key + '_v');
+      // v2: force refresh to fix encoding
+      if (stored && ver === '2') return JSON.parse(stored);
     } catch {}
     const defaults = this._defaults();
     this.save(defaults);
+    localStorage.setItem(this._key + '_v', '2');
     return defaults;
   },
 
