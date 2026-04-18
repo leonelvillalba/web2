@@ -1,10 +1,10 @@
 /* =========================================
-   SANCTUARY AI â€” CSS Global
+   SANCTUARY AI — CSS Global
    ========================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-/* â”€â”€â”€ VARIABLES â”€â”€â”€ */
+/* ─── VARIABLES ─── */
 :root {
   --primary: #1a1a2e;
   --primary-light: #16213e;
@@ -31,7 +31,7 @@
   --transition: 0.2s ease;
 }
 
-/* â”€â”€â”€ RESET â”€â”€â”€ */
+/* ─── RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -47,7 +47,7 @@ input, select, textarea { font-family: inherit; }
 img { max-width: 100%; }
 ul { list-style: none; }
 
-/* â”€â”€â”€ UTILITIES â”€â”€â”€ */
+/* ─── UTILITIES ─── */
 .hidden { display: none !important; }
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
@@ -72,7 +72,7 @@ ul { list-style: none; }
 .rounded-lg { border-radius: var(--radius); }
 .rounded-xl { border-radius: var(--radius-lg); }
 
-/* â”€â”€â”€ BUTTONS â”€â”€â”€ */
+/* ─── BUTTONS ─── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -111,7 +111,7 @@ ul { list-style: none; }
 .btn-icon { padding: 10px; border-radius: var(--radius-sm); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-/* â”€â”€â”€ CARDS â”€â”€â”€ */
+/* ─── CARDS ─── */
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -121,7 +121,7 @@ ul { list-style: none; }
 }
 .card-sm { padding: 16px; border-radius: var(--radius); }
 
-/* â”€â”€â”€ FORM ELEMENTS â”€â”€â”€ */
+/* ─── FORM ELEMENTS ─── */
 .form-group { margin-bottom: 20px; }
 .form-label {
   display: block;
@@ -147,7 +147,7 @@ ul { list-style: none; }
 .form-input::placeholder { color: var(--text-light); }
 .form-input.error { border-color: var(--error); }
 
-/* â”€â”€â”€ ALERTS â”€â”€â”€ */
+/* ─── ALERTS ─── */
 .alert {
   display: flex;
   align-items: center;
@@ -164,7 +164,7 @@ ul { list-style: none; }
 .alert-info { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
 .alert-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
-/* â”€â”€â”€ BADGE â”€â”€â”€ */
+/* ─── BADGE ─── */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -182,7 +182,7 @@ ul { list-style: none; }
 .badge-error { background: #fee2e2; color: #dc2626; }
 .badge-info { background: #dbeafe; color: #2563eb; }
 
-/* â”€â”€â”€ SPINNER â”€â”€â”€ */
+/* ─── SPINNER ─── */
 .spinner {
   width: 20px; height: 20px;
   border: 2px solid rgba(255,255,255,0.3);
@@ -193,7 +193,7 @@ ul { list-style: none; }
 }
 .spinner-dark { border-color: rgba(26,26,46,0.2); border-top-color: var(--primary); }
 
-/* â”€â”€â”€ ANIMATIONS â”€â”€â”€ */
+/* ─── ANIMATIONS ─── */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -202,7 +202,7 @@ ul { list-style: none; }
 .fade-in { animation: fadeIn 0.4s ease forwards; }
 .slide-up { animation: slideUp 0.5s ease forwards; }
 
-/* â”€â”€â”€ NAVBAR (pÃ¡ginas internas) â”€â”€â”€ */
+/* ─── NAVBAR (páginas internas) ─── */
 .navbar {
   position: fixed;
   top: 0;
@@ -281,7 +281,7 @@ ul { list-style: none; }
 }
 .notif-dot.hidden-dot { opacity: 0; pointer-events: none; }
 
-/* â”€â”€â”€ NOTIFICATION PANEL â”€â”€â”€ */
+/* ─── NOTIFICATION PANEL ─── */
 .notif-wrapper { position: relative; display: inline-block; }
 .notif-panel {
   position: absolute;
@@ -397,7 +397,7 @@ ul { list-style: none; }
 }
 .notif-panel-footer a:hover { opacity: 0.7; }
 
-/* â”€â”€â”€ SIDEBAR â”€â”€â”€ */
+/* ─── SIDEBAR ─── */
 .sidebar {
   position: fixed;
   left: 0; top: 0; bottom: 0;
@@ -491,7 +491,7 @@ ul { list-style: none; }
 }
 .sidebar-cta-btn:hover { background: rgba(255,255,255,0.25); }
 
-/* â”€â”€â”€ MAIN LAYOUT â”€â”€â”€ */
+/* ─── MAIN LAYOUT ─── */
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -507,12 +507,12 @@ ul { list-style: none; }
   max-width: 1200px;
 }
 
-/* â”€â”€â”€ PAGE HEADER â”€â”€â”€ */
+/* ─── PAGE HEADER ─── */
 .page-header { margin-bottom: 32px; }
 .page-title { font-size: 1.75rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
 .page-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
 
-/* â”€â”€â”€ STATS GRID â”€â”€â”€ */
+/* ─── STATS GRID ─── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -547,12 +547,12 @@ ul { list-style: none; }
 .stat-icon.blue { background: rgba(37,99,235,0.1); color: #2563eb; }
 .stat-icon.purple { background: rgba(83,52,131,0.1); color: var(--secondary); }
 
-/* â”€â”€â”€ GRID HELPERS â”€â”€â”€ */
+/* ─── GRID HELPERS ─── */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
 
-/* â”€â”€â”€ TABLES â”€â”€â”€ */
+/* ─── TABLES ─── */
 .table-wrapper { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
 table { width: 100%; border-collapse: collapse; }
 thead { background: var(--bg); }
@@ -571,7 +571,7 @@ tr:last-child td { border-bottom: none; }
 tbody tr { transition: background var(--transition); }
 tbody tr:hover { background: var(--bg); }
 
-/* â”€â”€â”€ TABS â”€â”€â”€ */
+/* ─── TABS ─── */
 .tabs { display: flex; gap: 4px; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 24px; }
 .tab-btn {
   flex: 1;
@@ -587,7 +587,7 @@ tbody tr:hover { background: var(--bg); }
 }
 .tab-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 
-/* â”€â”€â”€ MODAL â”€â”€â”€ */
+/* ─── MODAL ─── */
 .modal-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5);
@@ -626,7 +626,7 @@ tbody tr:hover { background: var(--bg); }
 }
 .modal-close:hover { background: var(--border); color: var(--text); }
 
-/* â”€â”€â”€ DROPDOWN â”€â”€â”€ */
+/* ─── DROPDOWN ─── */
 .dropdown { position: relative; display: inline-block; }
 .dropdown-menu {
   position: absolute;
@@ -661,7 +661,7 @@ tbody tr:hover { background: var(--bg); }
 .dropdown-item.danger:hover { background: #fef2f2; }
 .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
-/* â”€â”€â”€ CATEGORY CHIPS â”€â”€â”€ */
+/* ─── CATEGORY CHIPS ─── */
 .category-chip {
   display: inline-flex;
   align-items: center;
@@ -682,7 +682,7 @@ tbody tr:hover { background: var(--bg); }
 .cat-ingresos { background: #dcfce7; color: #15803d; }
 .cat-otros { background: #f3f4f6; color: #6b7280; }
 
-/* â”€â”€â”€ AVATAR INITIALS â”€â”€â”€ */
+/* ─── AVATAR INITIALS ─── */
 .avatar {
   width: 40px; height: 40px;
   border-radius: 50%;
@@ -698,7 +698,7 @@ tbody tr:hover { background: var(--bg); }
 .avatar-sm { width: 32px; height: 32px; font-size: 0.75rem; }
 .avatar-lg { width: 56px; height: 56px; font-size: 1rem; }
 
-/* â”€â”€â”€ LANDING PAGE â”€â”€â”€ */
+/* ─── LANDING PAGE ─── */
 .landing-nav {
   position: sticky;
   top: 0;
@@ -739,7 +739,7 @@ tbody tr:hover { background: var(--bg); }
 .nav-link:hover { color: var(--text); }
 .nav-actions { display: flex; align-items: center; gap: 12px; }
 
-/* â”€â”€â”€ HERO â”€â”€â”€ */
+/* ─── HERO ─── */
 .hero {
   max-width: 1200px;
   margin: 0 auto;
@@ -896,7 +896,7 @@ tbody tr:hover { background: var(--bg); }
 .pricing-features .cross { color: var(--text-light); font-size: 1rem; }
 .pricing-card.featured .pricing-features .cross { color: rgba(255,255,255,0.3); }
 
-/* â”€â”€â”€ AUTH PAGES â”€â”€â”€ */
+/* ─── AUTH PAGES ─── */
 .auth-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8f9fc 0%, #fff 50%, #f0f0ff 100%);
@@ -961,11 +961,11 @@ tbody tr:hover { background: var(--bg); }
 .demo-account-btn:hover { border-color: var(--accent); background: rgba(233,69,96,0.04); }
 .demo-account-btn .demo-email { color: var(--text-muted); font-size: 0.75rem; }
 
-/* â”€â”€â”€ PROGRESS BAR â”€â”€â”€ */
+/* ─── PROGRESS BAR ─── */
 .progress-bar { height: 8px; background: var(--bg); border-radius: 100px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--secondary)); transition: width 0.5s ease; }
 
-/* â”€â”€â”€ INSIGHT CARD â”€â”€â”€ */
+/* ─── INSIGHT CARD ─── */
 .insight-card {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent2) 100%);
   color: #fff;
@@ -975,7 +975,7 @@ tbody tr:hover { background: var(--bg); }
 .insight-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
 .insight-text { font-size: 0.875rem; line-height: 1.7; color: rgba(255,255,255,0.8); }
 
-/* â”€â”€â”€ RESPONSIVE â”€â”€â”€ */
+/* ─── RESPONSIVE ─── */
 @media (max-width: 1024px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
   .hero { grid-template-columns: 1fr; gap: 40px; }
@@ -998,7 +998,7 @@ tbody tr:hover { background: var(--bg); }
   .btn-lg { width: 100%; justify-content: center; }
 }
 
-/* â”€â”€â”€ SKELETON LOADING â”€â”€â”€ */
+/* ─── SKELETON LOADING ─── */
 .skeleton {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
@@ -1007,7 +1007,7 @@ tbody tr:hover { background: var(--bg); }
 }
 @keyframes skeleton { to { background-position: -200% 0; } }
 
-/* â”€â”€â”€ EMPTY STATE â”€â”€â”€ */
+/* ─── EMPTY STATE ─── */
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -1016,7 +1016,7 @@ tbody tr:hover { background: var(--bg); }
 .empty-state-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .empty-state-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px; }
 
-/* â”€â”€â”€ TOAST NOTIF â”€â”€â”€ */
+/* ─── TOAST NOTIF ─── */
 #toast-container {
   position: fixed;
   bottom: 24px;
@@ -1060,7 +1060,7 @@ tbody tr:hover { background: var(--bg); }
   --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
 }
 
-/* Buttons â€” keep them visible in dark mode */
+/* Buttons — keep them visible in dark mode */
 [data-theme="dark"] .btn-primary { background: var(--accent); color: #fff; }
 [data-theme="dark"] .btn-primary:hover { background: var(--accent); opacity: 0.9; }
 [data-theme="dark"] .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
@@ -1180,7 +1180,7 @@ tbody tr:hover { background: var(--bg); }
 [data-theme="dark"] .divider::after { background: var(--border); }
 
 
-/* â”€â”€â”€ THEME TOGGLE SWITCH â”€â”€â”€ */
+/* ─── THEME TOGGLE SWITCH ─── */
 .theme-switch {
   display: flex;
   align-items: center;
@@ -1220,7 +1220,7 @@ tbody tr:hover { background: var(--bg); }
   color: var(--text);
 }
 
-/* â”€â”€â”€ COLOR SWATCHES â”€â”€â”€ */
+/* ─── COLOR SWATCHES ─── */
 .color-swatches {
   display: flex;
   gap: 10px;
@@ -1241,7 +1241,7 @@ tbody tr:hover { background: var(--bg); }
   box-shadow: 0 0 0 3px var(--bg-card);
 }
 .color-swatch.active::after {
-  content: 'âœ“';
+  content: '✓';
   position: absolute;
   inset: 0;
   display: flex;
@@ -1252,7 +1252,7 @@ tbody tr:hover { background: var(--bg); }
   font-weight: 800;
 }
 
-/* â”€â”€â”€ THEME SETTINGS CARD â”€â”€â”€ */
+/* ─── THEME SETTINGS CARD ─── */
 .settings-section {
   padding: 24px 0;
   border-bottom: 1px solid var(--border);
