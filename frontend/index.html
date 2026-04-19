@@ -6,8 +6,27 @@
   <meta name="description" content="Sanctuary AI — Plataforma inteligente de gestión de gastos con IA, OCR y asesoría financiera personalizada.">
   <title>Sanctuary AI — Tu Santuario Financiero Inteligente</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 </head>
 <body>
+
+  <!-- ROBOT IA SCROLL ANIMATION (Canvas de fondo) -->
+  <div id="sequence-section">
+    <canvas id="robot-sequence"></canvas>
+    <div id="sequence-overlay"></div>
+    <div class="sequence-text">
+      <h2>Sanctuary <span style="color:var(--accent)">AI</span></h2>
+      <p>Tu Santuario Financiero Inteligente</p>
+    </div>
+    <div class="scroll-indicator" id="scroll-indicator">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      Scroll
+    </div>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL DEL LANDING -->
+  <div class="landing-content">
 
   <!-- NAVBAR -->
   <nav class="landing-nav">
@@ -274,7 +293,71 @@
     </div>
   </footer>
 
+  </div><!-- /.landing-content -->
+
   <script src="js/app.js"></script>
+  <script>
+    // ─── ROBOT IA SCROLL ANIMATION ───
+    (function initSequence() {
+      const canvas = document.getElementById('robot-sequence');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const FRAME_COUNT = 60;
+      const images = [];
+      let loaded = 0;
+      const sequence = { frame: 0 };
+
+      // Pre-cargar todas las imágenes
+      for (let i = 1; i <= FRAME_COUNT; i++) {
+        const img = new Image();
+        img.src = `assets/sequence/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
+        img.onload = () => {
+          loaded++;
+          if (loaded === 1) {
+            // Ajustar canvas al tamaño de la primera imagen
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            render();
+          }
+          if (loaded === FRAME_COUNT) initGSAP();
+        };
+        images.push(img);
+      }
+
+      function render() {
+        if (!images[sequence.frame]) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(images[sequence.frame], 0, 0);
+      }
+
+      function initGSAP() {
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to(sequence, {
+          frame: FRAME_COUNT - 1,
+          snap: 'frame',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#sequence-section',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.5,
+            onUpdate: (self) => {
+              // Ocultar canvas y overlay cuando se pasa la sección
+              const past = self.progress === 1;
+              canvas.style.opacity = past ? '0' : '1';
+              document.getElementById('sequence-overlay').style.opacity = past ? '0' : '1';
+              const txt = document.querySelector('.sequence-text');
+              if (txt) txt.style.opacity = past ? '0' : String(1 - self.progress * 1.5);
+              const ind = document.getElementById('scroll-indicator');
+              if (ind) ind.style.opacity = self.progress > 0.1 ? '0' : '1';
+            },
+          },
+          onUpdate: render,
+        });
+      }
+    })();
+  </script>
   <script>
     // Redirect if already logged in
     if (auth.isLoggedIn()) window.location.href = 'dashboard.html';
