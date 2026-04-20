@@ -317,7 +317,7 @@ const ACCENT_COLORS = {
 const theme = {
   get() {
     return {
-      mode: localStorage.getItem('sanctuary_theme') || 'light',
+      mode: localStorage.getItem('sanctuary_theme') || 'dark',
       accent: localStorage.getItem('sanctuary_accent') || 'rojo',
     };
   },
