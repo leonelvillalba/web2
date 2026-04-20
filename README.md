@@ -58,6 +58,8 @@ abrir frontend/index.html en el navegador
 npx http-server ./frontend -p 8080
 ```
 Frontend en: http://localhost:8080
+## Web
+Frontend desplegado en: https://web2-delta-mauve.vercel.app/index.html#producto
 
 ## Usuarios de prueba
 | Rol | Email | Contraseña | Plan |
