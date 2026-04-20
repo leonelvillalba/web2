@@ -35,7 +35,7 @@ Santuario/
 - **Frontend:** HTML5, CSS3, JavaScript (vanilla)
 - **Backend:** NestJS, TypeORM
 - **Base de Datos:** PostgreSQL (Supabase)
-- **IA/OCR:** Integrado en gastos.html (procesamiento de tickets)
+- **IA/OCR:** Integrado en gastos.html (procesamiento de tickets)[Proximamente a implentar con IA]
 - **Deploy:** Render (backend) + Vercel/hosting estático (frontend)
 
 ## Cómo ejecutar
