@@ -5,94 +5,33 @@
    ===================================================================== */
 
 
-/* ─── Animación Robot IA (Scroll Sequence) ─── */
+/* ─── Robot IA — Canvas fijo detrás de toda la página ─── */
 
-#sequence-section {
-  position: relative;
-  height: 300vh; /* Controla cuánto hay que scrollear para la animación completa */
-  background: #000;
-}
+/* El canvas queda fijo detrás de TODO el contenido */
 #robot-sequence {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 100vw;
-  max-height: 100vh;
-  object-fit: contain;
-  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -2;          /* debajo de todo */
   pointer-events: none;
 }
+
+/* Overlay semitransparente para que el texto sea legible encima */
 #sequence-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    transparent 60%,
-    rgba(0,0,0,0.7) 90%,
-    #000 100%
-  );
-  z-index: 2;
+  background: rgba(255, 255, 255, 0.82); /* fondo blanco semitransparente en light mode */
+  z-index: -1;           /* encima del canvas, debajo del contenido */
   pointer-events: none;
+  transition: background 0.3s ease;
 }
 
-/* Texto superpuesto al canvas */
-#sequence-section .sequence-text {
-  position: fixed;
-  bottom: 15vh;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 3;
-  pointer-events: none;
-  color: #fff;
-}
-#sequence-section .sequence-text h2 {
-  font-size: 2.5rem;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-}
-#sequence-section .sequence-text p {
-  font-size: 1rem;
-  color: rgba(255,255,255,0.7);
-  text-shadow: 0 1px 10px rgba(0,0,0,0.5);
-}
-
-/* Scroll indicator */
-.scroll-indicator {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: rgba(255,255,255,0.5);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  animation: pulse 2s ease infinite;
-  pointer-events: none;
-}
-.scroll-indicator svg {
-  animation: bounceDown 1.5s ease infinite;
-}
-@keyframes bounceDown {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-
-/* El contenido principal del landing viene después del canvas */
-.landing-content {
-  position: relative;
-  z-index: 10;
-  background: var(--bg);
+/* En dark mode: overlay oscuro */
+[data-theme="dark"] #sequence-overlay {
+  background: rgba(10, 10, 20, 0.80);
 }
 
 
