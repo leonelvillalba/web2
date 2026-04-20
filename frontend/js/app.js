@@ -46,6 +46,8 @@ const auth = {
   },
   logout() {
     this.removeUser();
+    // Resetear tema a oscuro para que la landing se vea siempre negra
+    localStorage.setItem('sanctuary_theme', 'dark');
     window.location.href = 'index.html';
   },
   async login(email, password) {
@@ -334,8 +336,15 @@ const theme = {
     this.setMode(current === 'dark' ? 'light' : 'dark');
   },
   apply() {
-    const { mode, accent } = this.get();
-    // Dark mode
+    let { mode, accent } = this.get();
+
+    // Páginas públicas (landing, login, register) → siempre oscuras
+    const page = location.pathname.split('/').pop() || 'index.html';
+    const publicPages = ['index.html', 'login.html', 'register.html', ''];
+    const isPublic = publicPages.includes(page);
+    if (isPublic) mode = 'dark';
+
+    // Aplicar modo
     document.documentElement.setAttribute('data-theme', mode);
     // Accent color
     const colors = ACCENT_COLORS[accent] || ACCENT_COLORS.rojo;
@@ -344,11 +353,11 @@ const theme = {
     // Update toggles UI if present
     const toggle = document.getElementById('dark-toggle');
     if (toggle) {
-      toggle.classList.toggle('active', mode === 'dark');
+      toggle.classList.toggle('active', this.get().mode === 'dark');
     }
     const modeLabel = document.getElementById('dark-label');
     if (modeLabel) {
-      modeLabel.textContent = mode === 'dark' ? 'Modo Oscuro activado' : 'Modo Claro activado';
+      modeLabel.textContent = this.get().mode === 'dark' ? 'Modo Oscuro activado' : 'Modo Claro activado';
     }
     // Update swatches
     document.querySelectorAll('.color-swatch').forEach(s => {
