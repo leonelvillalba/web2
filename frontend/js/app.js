@@ -6,6 +6,13 @@
 const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
 const API_BASE = isLocal ? 'http://localhost:3001/api' : 'https://sanctuary-ai-backend.onrender.com/api';
 
+// ─── NAV HELPER — detecta si estamos en /views/ para rutas relativas ───
+const inViews = location.pathname.includes('/views/');
+const nav = {
+  toIndex: () => inViews ? '../index.html' : 'index.html',
+  toView: (page) => inViews ? page : 'views/' + page,
+};
+
 // ─── API HELPER ───
 const api = {
   async request(method, endpoint, data = null) {
@@ -41,14 +48,14 @@ const auth = {
   removeUser() { localStorage.removeItem('sanctuary_user'); },
   isLoggedIn() { return !!this.getUser(); },
   requireAuth() {
-    if (!this.isLoggedIn()) { window.location.href = 'login.html'; return false; }
+    if (!this.isLoggedIn()) { window.location.href = nav.toView('login.html'); return false; }
     return true;
   },
   logout() {
     this.removeUser();
     // Resetear tema a oscuro para que la landing se vea siempre negra
     localStorage.setItem('sanctuary_theme', 'dark');
-    window.location.href = 'index.html';
+    window.location.href = nav.toIndex();
   },
   async login(email, password) {
     const data = await api.post('/auth/login', { email, password });
