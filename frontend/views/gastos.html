@@ -9,9 +9,9 @@
 <body>
   <div class="app-layout">
 
-    <!-- SIDEBAR (same as dashboard) -->
     <div id="sidebar"></div>
-<!-- MAIN -->
+
+    <!-- MAIN -->
     <div class="main-content">
       <header class="navbar">
         <div class="navbar-left">
@@ -144,8 +144,8 @@
         <div style="font-size:2.5rem;margin-bottom:8px">📸</div>
         <p style="font-weight:600;color:var(--text)">Arrastrá tu ticket aquí</p>
         <p class="text-sm text-muted">o hacé clic para seleccionar</p>
-        <p class="text-xs text-muted mt-2">JPG, PNG o PDF — Máximo 5MB</p>
-        <input type="file" id="scan-file" accept="image/*,.pdf" style="display:none">
+        <p class="text-xs text-muted mt-2">JPG, PNG o WebP — Máximo 5MB</p>
+        <input type="file" id="scan-file" accept="image/jpeg,image/png,image/webp" style="display:none">
       </div>
       <div id="scan-preview" class="hidden mt-4" style="text-align:center">
         <img id="scan-img" style="max-height:200px;border-radius:var(--radius);border:1px solid var(--border)">
@@ -284,8 +284,9 @@
       }
     }
 
-    // OCR / Scan
+    // ─── OCR / Scan con Gemini Vision ───
     let scanFileData = null;
+
     document.getElementById('scan-file').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -315,45 +316,101 @@
       }
     });
 
+    // ─── Procesar OCR con Gemini Vision API (real) ───
     async function processOCR() {
       const btn = document.getElementById('scan-btn');
+      if (!scanFileData) {
+        showAlert('#scan-alert', 'Seleccioná una imagen primero');
+        return;
+      }
+
+      if (!plans.canScan()) {
+        plans.showUpgradePrompt('scan');
+        return;
+      }
+
       setLoading(btn, true);
-      
-      // Simulate OCR processing (replace with real API call when OCR service is connected)
-      await new Promise(r => setTimeout(r, 2000));
+      hideAlert('#scan-alert');
 
-      // Simulated OCR result
-      const results = [
-        { merchant: 'Carrefour Express', amount: 2340, date: new Date().toISOString().split('T')[0], category: 'Supermercado' },
-        { merchant: 'YPF Estación', amount: 850, date: new Date().toISOString().split('T')[0], category: 'Transporte' },
-        { merchant: 'Farmacia del Pueblo', amount: 1200, date: new Date().toISOString().split('T')[0], category: 'Salud' },
-      ];
-      const result = results[Math.floor(Math.random() * results.length)];
+      try {
+        const formData = new FormData();
+        formData.append('ticket', scanFileData);
 
-      document.getElementById('scan-result').innerHTML = `
-        <div class="card-sm" style="background:var(--bg);border:1px solid var(--border)">
-          <p class="text-xs font-bold text-muted mb-2" style="text-transform:uppercase;letter-spacing:0.08em">📋 Datos extraídos por IA</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div><span class="text-xs text-muted">Comercio</span><div style="font-weight:700">${result.merchant}</div></div>
-            <div><span class="text-xs text-muted">Monto</span><div style="font-weight:700;color:var(--accent)">${formatMoney(result.amount)}</div></div>
-            <div><span class="text-xs text-muted">Fecha</span><div style="font-weight:600">${formatDate(result.date)}</div></div>
-            <div><span class="text-xs text-muted">Categoría</span><div>${categoryChip(result.category)}</div></div>
+        const response = await fetch(`${API_BASE}/tickets/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || json.error || 'Error al procesar el ticket');
+        }
+
+        const result = json.data;
+        plans.addScan();
+
+        // Confianza como color
+        const confPct = Math.round((result.confidence || 0.5) * 100);
+        const confColor = confPct >= 80 ? 'var(--success)' : confPct >= 50 ? '#f59e0b' : 'var(--error)';
+
+        // Items extraídos
+        const itemsHTML = result.items && result.items.length > 0
+          ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+               <span class="text-xs text-muted" style="font-weight:600">Productos detectados:</span>
+               <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+                 ${result.items.map(i => `<span class="badge" style="font-size:0.7rem">${i}</span>`).join('')}
+               </div>
+             </div>`
+          : '';
+
+        // Guardar datos para el botón
+        window._ocrResult = result;
+
+        document.getElementById('scan-result').innerHTML = `
+          <div class="card-sm" style="background:var(--bg);border:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <p class="text-xs font-bold text-muted" style="text-transform:uppercase;letter-spacing:0.08em;margin:0">🤖 Datos extraídos por Gemini IA</p>
+              <span class="badge" style="background:${confColor};color:#fff;font-size:0.68rem">${confPct}% confianza</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><span class="text-xs text-muted">Comercio</span><div style="font-weight:700">${result.merchant}</div></div>
+              <div><span class="text-xs text-muted">Monto</span><div style="font-weight:700;color:var(--accent)">${formatMoney(result.amount)}</div></div>
+              <div><span class="text-xs text-muted">Fecha</span><div style="font-weight:600">${formatDate(result.date)}</div></div>
+              <div><span class="text-xs text-muted">Categoría</span><div>${categoryChip(result.category)}</div></div>
+            </div>
+            ${itemsHTML}
+            <button class="btn btn-primary w-full mt-3 btn-sm" style="justify-content:center" onclick="saveOCRResult()">✓ Guardar este gasto</button>
           </div>
-          <button class="btn btn-primary w-full mt-3 btn-sm" style="justify-content:center" onclick="saveOCRResult('${result.merchant}',${result.amount},'${result.date}','${result.category}')">✓ Guardar este gasto</button>
-        </div>
-      `;
-      show('#scan-result');
-      setLoading(btn, false);
+        `;
+        show('#scan-result');
+
+      } catch (err) {
+        showAlert('#scan-alert', err.message || 'Error al analizar el ticket', 'error');
+      } finally {
+        setLoading(btn, false);
+      }
     }
 
-    async function saveOCRResult(merchant, amount, date, category) {
+    async function saveOCRResult() {
+      const r = window._ocrResult;
+      if (!r) return;
       try {
-        await api.post('/expenses', { merchant, amount, date, category, type: 'expense', userId: user.id });
+        await api.post('/expenses', {
+          merchant: r.merchant,
+          amount: r.amount,
+          date: r.date,
+          category: r.category,
+          type: 'expense',
+          userId: user.id,
+        });
         closeModal('scan-modal');
         toast('Gasto del ticket guardado correctamente');
         hide('#scan-preview');
         hide('#scan-btn');
         hide('#scan-result');
+        scanFileData = null;
+        window._ocrResult = null;
         loadExpenses();
       } catch (err) {
         toast('Error al guardar', 'error');

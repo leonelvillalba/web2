@@ -9,6 +9,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { InsightsModule } from './insights/insights.module';
 import { AdvisorModule } from './advisor/advisor.module';
 import { SeedModule } from './seed/seed.module';
+import { TicketsModule } from './tickets/tickets.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SeedModule } from './seed/seed.module';
     InsightsModule,
     AdvisorModule,
     SeedModule,
+    TicketsModule,
   ],
 })
 export class AppModule {}
