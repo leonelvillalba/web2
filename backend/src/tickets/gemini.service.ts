@@ -8,7 +8,6 @@ export class GeminiService {
   private readonly geminiApiKey: string;
 
   constructor(private configService: ConfigService) {
-    // OCR.space — free tier, no billing required
     this.ocrApiKey = this.configService.get<string>('OCR_API_KEY') || 'K89674888388957';
     this.geminiApiKey = this.configService.get<string>('GEMINI_API_KEY') || '';
   }
@@ -27,7 +26,7 @@ export class GeminiService {
     const base64Image = imageBuffer.toString('base64');
     const base64WithPrefix = `data:${mimeType};base64,${base64Image}`;
 
-    // ─── Paso 1: OCR con OCR.space (gratis) ───
+    // ─── Paso 1: OCR con OCR.space ───
     this.logger.log('Enviando imagen a OCR.space...');
 
     const formData = new URLSearchParams();
@@ -36,41 +35,38 @@ export class GeminiService {
     formData.append('isOverlayRequired', 'false');
     formData.append('detectOrientation', 'true');
     formData.append('scale', 'true');
-    formData.append('OCREngine', '2'); // Engine 2 es mejor para tickets
+    formData.append('OCREngine', '2');
 
     const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
       method: 'POST',
-      headers: {
-        'apikey': this.ocrApiKey,
-      },
+      headers: { 'apikey': this.ocrApiKey },
       body: formData,
     });
 
     const ocrResult = await ocrResponse.json();
 
     if (!ocrResult.ParsedResults || ocrResult.ParsedResults.length === 0) {
-      this.logger.error('OCR.space no devolvió resultados');
       throw new Error('No se pudo leer el texto del ticket. Intentá con una foto más clara.');
     }
 
     const ocrText = ocrResult.ParsedResults[0].ParsedText;
-    this.logger.log(`OCR texto extraído: ${ocrText.substring(0, 200)}...`);
+    this.logger.log(`OCR texto completo:\n${ocrText}`);
 
     if (!ocrText || ocrText.trim().length < 5) {
-      throw new Error('No se detectó texto en la imagen. Asegurate de que sea una foto clara de un ticket.');
+      throw new Error('No se detectó texto en la imagen.');
     }
 
-    // ─── Paso 2: Intentar Gemini para análisis inteligente ───
+    // ─── Paso 2: Intentar Gemini ───
     if (this.geminiApiKey) {
       try {
         const result = await this.analyzeWithGemini(ocrText);
         if (result) return result;
       } catch (e) {
-        this.logger.warn(`Gemini falló, usando parsing local: ${e.message}`);
+        this.logger.warn(`Gemini no disponible, usando parsing local: ${e.message?.substring(0, 80)}`);
       }
     }
 
-    // ─── Paso 3: Fallback — parsing local inteligente ───
+    // ─── Paso 3: Parsing local mejorado ───
     return this.parseTicketText(ocrText);
   }
 
@@ -90,7 +86,7 @@ ${ocrText}
 
 Extraé:
 - merchant: nombre del comercio
-- amount: monto total (solo número)
+- amount: monto total (solo número, sin símbolo de moneda)
 - date: fecha en YYYY-MM-DD
 - category: UNA de: Supermercado, Transporte, Restaurantes, Salud, Vivienda, Servicios, Suscripciones, Compras, Otros
 - items: array con máx 5 productos
@@ -115,9 +111,9 @@ Respondé SOLO con JSON válido:
     };
   }
 
-  /**
-   * Parsing local inteligente del texto OCR (fallback sin Gemini)
-   */
+  // ─────────────────────────────────────────────────────────
+  // PARSING LOCAL MEJORADO
+  // ─────────────────────────────────────────────────────────
   private parseTicketText(text: string): {
     merchant: string;
     amount: number;
@@ -127,115 +123,323 @@ Respondé SOLO con JSON válido:
     confidence: number;
   } {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const fullText = text.toLowerCase();
 
-    // ─── Merchant: primera línea con texto significativo ───
-    let merchant = 'Comercio';
-    for (const line of lines.slice(0, 5)) {
-      const clean = line.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s]/g, '').trim();
-      if (clean.length >= 3 && !/^\d+$/.test(clean) && !/fecha|hora|ticket|factura|comprobante/i.test(clean)) {
-        merchant = clean.split(/\s+/).slice(0, 4).join(' ');
-        break;
+    const merchant = this.extractMerchant(lines, fullText);
+    const amount = this.extractAmount(lines, fullText);
+    const date = this.extractDate(lines, fullText);
+    const category = this.detectCategory(fullText, merchant);
+    const items = this.extractItems(lines);
+
+    // Confianza basada en cuántos campos se extrajeron bien
+    let confidence = 0.5;
+    if (merchant !== 'Comercio') confidence += 0.15;
+    if (amount > 0) confidence += 0.2;
+    if (date !== new Date().toISOString().split('T')[0]) confidence += 0.1;
+    confidence = Math.min(confidence, 0.95);
+
+    this.logger.log(`Parsed: merchant=${merchant}, amount=${amount}, date=${date}, category=${category}, items=${items.length}`);
+
+    return { merchant, amount, date, category, items, confidence };
+  }
+
+  /**
+   * Extraer nombre del comercio
+   * Estrategia: buscar marcas conocidas primero, luego la primera línea significativa
+   */
+  private extractMerchant(lines: string[], fullText: string): string {
+    // Base de marcas conocidas (prioritarias)
+    const knownBrands: Record<string, string> = {
+      'zara': 'ZARA',
+      'carrefour': 'Carrefour',
+      'coto': 'Coto',
+      'dia': 'Día',
+      'jumbo': 'Jumbo',
+      'disco': 'Disco',
+      'vea': 'Vea',
+      'walmart': 'Walmart',
+      'changomas': 'Changomás',
+      'mcdonalds': "McDonald's", 'mcdonald': "McDonald's",
+      'burger king': 'Burger King',
+      'starbucks': 'Starbucks',
+      'subway': 'Subway',
+      'ypf': 'YPF',
+      'shell': 'Shell',
+      'axion': 'Axion',
+      'nike': 'Nike',
+      'adidas': 'Adidas',
+      'farmacity': 'Farmacity',
+      'musimundo': 'Musimundo',
+      'garbarino': 'Garbarino',
+      'fravega': 'Frávega',
+      'mercado pago': 'Mercado Pago', 'mercadopago': 'Mercado Pago',
+      'mercado libre': 'Mercado Libre',
+      'rappi': 'Rappi',
+      'pedidosya': 'PedidosYa',
+      'uber': 'Uber',
+      'cabify': 'Cabify',
+      'netflix': 'Netflix',
+      'spotify': 'Spotify',
+      'apple': 'Apple',
+      'google': 'Google',
+      'amazon': 'Amazon',
+      'easy': 'Easy',
+      'sodimac': 'Sodimac',
+      'falabella': 'Falabella',
+      'personal': 'Personal',
+      'claro': 'Claro',
+      'movistar': 'Movistar',
+      'edenor': 'Edenor',
+      'edesur': 'Edesur',
+      'metrogas': 'Metrogas',
+      'open 25': 'Open 25',
+    };
+
+    // Buscar marcas en todo el texto (une líneas consecutivas para capturar "mercado\npago")
+    const joinedText = lines.slice(0, 10).join(' ').toLowerCase();
+    for (const [key, brand] of Object.entries(knownBrands)) {
+      if (joinedText.includes(key) || fullText.includes(key)) {
+        return brand;
       }
     }
 
-    // ─── Amount: buscar "TOTAL" o el número más grande ───
-    let amount = 0;
-    const allAmounts: number[] = [];
+    // Fallback: primera línea con texto significativo (no numérica, no metadata)
+    const skipWords = /fecha|hora|ticket|factura|comprobante|transferencia|cuit|cuil|tel|caja|empleado|sucursal|local|nro|n°|boleta|recibo|iva|total|subtotal/i;
+    for (const line of lines.slice(0, 6)) {
+      const clean = line.replace(/[^a-záéíóúñüA-ZÁÉÍÓÚÑÜ\s&.'-]/g, '').trim();
+      if (clean.length >= 3 && !skipWords.test(clean) && !/^\d+$/.test(line)) {
+        return clean.split(/\s+/).slice(0, 5).join(' ');
+      }
+    }
 
+    return 'Comercio';
+  }
+
+  /**
+   * Extraer monto total
+   * Estrategia: buscar línea con "TOTAL" → si no, buscar $ con formato argentino
+   */
+  private extractAmount(lines: string[], fullText: string): number {
+    // ─── Prioridad 1: Líneas con "total" (exacto, no subtotal) ───
+    const totalAmounts: number[] = [];
     for (const line of lines) {
-      // Buscar líneas con TOTAL, IMPORTE, SUMA
-      if (/total|importe|suma|a pagar|amount/i.test(line)) {
-        const nums = line.match(/[\d.,]+/g);
-        if (nums) {
-          for (const n of nums) {
-            const val = parseFloat(n.replace(/\./g, '').replace(',', '.'));
-            if (val > 0) allAmounts.push(val);
+      const lower = line.toLowerCase();
+      // Debe decir "total" pero NO "subtotal"
+      if (/\btotal\b/i.test(lower) && !/subtotal/i.test(lower)) {
+        const nums = this.extractNumbers(line);
+        totalAmounts.push(...nums);
+      }
+    }
+    if (totalAmounts.length > 0) {
+      // El total suele ser el último o el más grande en la línea TOTAL
+      return totalAmounts[totalAmounts.length - 1];
+    }
+
+    // ─── Prioridad 2: Líneas con "a pagar", "importe", "monto" ───
+    for (const line of lines) {
+      if (/a pagar|importe final|monto total|amount/i.test(line)) {
+        const nums = this.extractNumbers(line);
+        if (nums.length > 0) return Math.max(...nums);
+      }
+    }
+
+    // ─── Prioridad 3: Formato $ XXX.XXX (pesos argentinos) ───
+    // Buscar el patrón $ seguido de número
+    const pesoMatches: number[] = [];
+    for (const line of lines) {
+      // $ 187.000 | $2.340 | $ 1.200,50
+      const matches = line.match(/\$\s*([\d.]+(?:,\d{1,2})?)/g);
+      if (matches) {
+        for (const m of matches) {
+          const val = this.parseArgentineNumber(m.replace('$', '').trim());
+          if (val > 0) pesoMatches.push(val);
+        }
+      }
+    }
+    if (pesoMatches.length > 0) {
+      return Math.max(...pesoMatches);
+    }
+
+    // ─── Prioridad 4: Formato europeo (con € o coma decimal) ───
+    for (const line of lines) {
+      if (/total/i.test(line) || /€/.test(line)) {
+        const euroMatch = line.match(/([\d.]+,\d{2})\s*€?/);
+        if (euroMatch) {
+          return parseFloat(euroMatch[1].replace('.', '').replace(',', '.'));
+        }
+      }
+    }
+
+    // ─── Prioridad 5: Todos los números, el más grande (último recurso) ───
+    const allNums: number[] = [];
+    for (const line of lines) {
+      // Ignorar líneas que son claramente códigos postales, teléfonos, CUIT, etc
+      if (/tel|cuit|cuil|cvu|cbu|dni|código|codigo|empleado|caja|sucursal|nro/i.test(line)) continue;
+      // Ignorar números que parecen códigos (más de 6 dígitos sin separador)
+      const nums = this.extractNumbers(line);
+      for (const n of nums) {
+        if (n >= 1 && n < 50000000) allNums.push(n);
+      }
+    }
+
+    // Filtrar: no considerar números que parecen códigos postales (4-5 dígitos sin contexto monetario)
+    const monetaryNums = allNums.filter(n => {
+      // Si el número está en una línea con $ o total, mantenerlo
+      // Si es un número suelto de 4-5 dígitos sin decimal, podría ser código postal
+      return n > 100 || (n > 0 && n <= 100);
+    });
+
+    if (monetaryNums.length > 0) return Math.max(...monetaryNums);
+    return 0;
+  }
+
+  /**
+   * Parsear número en formato argentino: 187.000 → 187000, 1.200,50 → 1200.50
+   */
+  private parseArgentineNumber(str: string): number {
+    const clean = str.replace(/\s/g, '');
+    // Si tiene coma seguida de 2 dígitos → es decimal (1.200,50)
+    if (/,\d{2}$/.test(clean)) {
+      return parseFloat(clean.replace(/\./g, '').replace(',', '.'));
+    }
+    // Si tiene puntos → son separadores de miles (187.000)
+    if (/\.\d{3}/.test(clean)) {
+      return parseFloat(clean.replace(/\./g, ''));
+    }
+    return parseFloat(clean) || 0;
+  }
+
+  /**
+   * Extraer todos los números de una línea
+   */
+  private extractNumbers(line: string): number[] {
+    const results: number[] = [];
+    // Patrón para números con formato: 187.000 | 1.200,50 | 25,00 | 2340
+    const matches = line.match(/[\d]+(?:[.,]\d{2,3})*(?:,\d{1,2})?/g);
+    if (matches) {
+      for (const m of matches) {
+        const val = this.parseArgentineNumber(m);
+        if (val > 0) results.push(val);
+      }
+    }
+    return results;
+  }
+
+  /**
+   * Extraer fecha
+   * Soporta: DD/MM/YYYY, DD-MM-YYYY, "08 de mayo de 2026", DD/MM/YY
+   */
+  private extractDate(lines: string[], fullText: string): string {
+    const today = new Date().toISOString().split('T')[0];
+
+    // ─── Formato texto: "08 de mayo de 2026" o "Viernes, 08 de mayo de 2026" ───
+    const meses: Record<string, string> = {
+      'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+      'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+      'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12',
+      'ene': '01', 'feb': '02', 'mar': '03', 'abr': '04',
+      'may': '05', 'jun': '06', 'jul': '07', 'ago': '08',
+      'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12',
+    };
+
+    const textDateRegex = /(\d{1,2})\s+de\s+(\w+)\s+(?:de\s+)?(\d{4})/i;
+    const textMatch = fullText.match(textDateRegex);
+    if (textMatch) {
+      const day = textMatch[1].padStart(2, '0');
+      const monthName = textMatch[2].toLowerCase();
+      const year = textMatch[3];
+      const month = meses[monthName];
+      if (month) return `${year}-${month}-${day}`;
+    }
+
+    // ─── Formato numérico: DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY ───
+    for (const line of lines) {
+      // Buscar específicamente en líneas con "Fecha:"
+      const dateFormats = [
+        /(\d{2})[\/\-.](\d{2})[\/\-.](\d{4})/,  // DD/MM/YYYY
+        /(\d{4})[\/\-.](\d{2})[\/\-.](\d{2})/,  // YYYY/MM/DD
+        /(\d{2})[\/\-.](\d{2})[\/\-.](\d{2})/,  // DD/MM/YY
+      ];
+
+      for (const pattern of dateFormats) {
+        const match = line.match(pattern);
+        if (match) {
+          if (match[1].length === 4) {
+            // YYYY-MM-DD
+            return `${match[1]}-${match[2]}-${match[3]}`;
+          } else if (match[3].length === 4) {
+            // DD/MM/YYYY → YYYY-MM-DD
+            return `${match[3]}-${match[2]}-${match[1]}`;
+          } else {
+            // DD/MM/YY → 20YY-MM-DD
+            const year = parseInt(match[3]) < 50 ? `20${match[3]}` : `19${match[3]}`;
+            return `${year}-${match[2]}-${match[1]}`;
           }
         }
       }
-
-      // Capturar todos los montos con formato $X.XXX,XX o X.XXX
-      const moneyMatches = line.match(/\$?\s*([\d.]+[,.]?\d{0,2})/g);
-      if (moneyMatches) {
-        for (const m of moneyMatches) {
-          const val = parseFloat(m.replace(/[$\s]/g, '').replace(/\./g, '').replace(',', '.'));
-          if (val > 0 && val < 10000000) allAmounts.push(val);
-        }
-      }
     }
 
-    // El total suele ser el número más grande, o el que está en la línea "TOTAL"
-    if (allAmounts.length > 0) {
-      amount = Math.max(...allAmounts);
-    }
+    return today;
+  }
 
-    // ─── Date: buscar patrones de fecha ───
-    let date = new Date().toISOString().split('T')[0];
-    const datePatterns = [
-      /(\d{2})[\/\-.](\d{2})[\/\-.](\d{4})/,  // DD/MM/YYYY
-      /(\d{4})[\/\-.](\d{2})[\/\-.](\d{2})/,  // YYYY/MM/DD
-      /(\d{2})[\/\-.](\d{2})[\/\-.](\d{2})/,  // DD/MM/YY
+  /**
+   * Detectar categoría por keywords en el texto y nombre del comercio
+   */
+  private detectCategory(fullText: string, merchant: string): string {
+    const combined = `${fullText} ${merchant}`.toLowerCase();
+
+    const categories: [string, string[]][] = [
+      ['Supermercado', ['carrefour', 'coto', 'dia %', 'jumbo', 'disco', 'vea', 'walmart', 'changomas', 'super', 'almacen', 'almacén', 'autoservicio', 'maxiconsumo', 'makro']],
+      ['Restaurantes', ['restaurant', 'cafe', 'cafetería', 'bar ', 'pizza', 'burger', 'comida', 'mcdonald', 'starbucks', 'subway', 'sushi', 'parrilla', 'heladería', 'helader']],
+      ['Transporte', ['ypf', 'shell', 'axion', 'nafta', 'combustible', 'uber', 'cabify', 'sube', 'peaje', 'estación de servicio', 'gasoil', 'gnc']],
+      ['Salud', ['farmacia', 'farmacity', 'hospital', 'clinica', 'clínica', 'medic', 'salud', 'laboratorio', 'óptica', 'optica', 'odont', 'dent']],
+      ['Compras', ['zara', 'nike', 'adidas', 'h&m', 'tienda', 'shopping', 'ropa', 'electro', 'musimundo', 'garbarino', 'fravega', 'frávega', 'falabella', 'easy', 'sodimac', 'pantalón', 'pantalon', 'remera', 'camisa', 'zapatilla']],
+      ['Servicios', ['edenor', 'edesur', 'metrogas', 'telecom', 'personal', 'claro', 'movistar', 'internet', ' luz ', ' gas ', ' agua ', 'aysa', 'telefon']],
+      ['Suscripciones', ['netflix', 'spotify', 'disney', 'hbo', 'amazon prime', 'youtube premium', 'apple music', 'mercado libre nivel', 'gamepass']],
+      ['Vivienda', ['alquiler', 'expensas', 'inmobiliaria', 'propiedad', 'consorcio']],
     ];
 
-    for (const line of lines) {
-      for (const pattern of datePatterns) {
-        const match = line.match(pattern);
-        if (match) {
-          try {
-            if (match[1].length === 4) {
-              date = `${match[1]}-${match[2]}-${match[3]}`;
-            } else if (match[3].length === 4) {
-              date = `${match[3]}-${match[2]}-${match[1]}`;
-            } else {
-              const year = parseInt(match[3]) + 2000;
-              date = `${year}-${match[2]}-${match[1]}`;
-            }
-            break;
-          } catch {}
-        }
-      }
-      if (date !== new Date().toISOString().split('T')[0]) break;
-    }
-
-    // ─── Category: detectar por keywords ───
-    const fullText = text.toLowerCase();
-    const categoryMap: Record<string, string[]> = {
-      'Supermercado': ['carrefour', 'coto', 'dia', 'jumbo', 'disco', 'vea', 'walmart', 'changomas', 'super', 'mercado', 'almacen'],
-      'Restaurantes': ['restaurant', 'cafe', 'bar', 'pizza', 'burger', 'comida', 'mcdonald', 'starbucks', 'subway', 'rappi'],
-      'Transporte': ['ypf', 'shell', 'axion', 'nafta', 'estacion', 'combustible', 'uber', 'cabify', 'sube', 'peaje'],
-      'Salud': ['farmacia', 'hospital', 'clinica', 'medic', 'salud', 'laboratorio', 'optica'],
-      'Compras': ['zara', 'nike', 'adidas', 'tienda', 'shopping', 'ropa', 'electro', 'musimundo', 'garbarino', 'fravega'],
-      'Servicios': ['edenor', 'edesur', 'metrogas', 'telecom', 'personal', 'claro', 'movistar', 'internet', 'luz', 'gas', 'agua'],
-      'Suscripciones': ['netflix', 'spotify', 'disney', 'hbo', 'amazon', 'youtube', 'mercadolibre'],
-      'Vivienda': ['alquiler', 'expensas', 'inmobiliaria', 'propiedad'],
-    };
-
-    let category = 'Otros';
-    for (const [cat, keywords] of Object.entries(categoryMap)) {
-      if (keywords.some(kw => fullText.includes(kw))) {
-        category = cat;
-        break;
+    for (const [cat, keywords] of categories) {
+      if (keywords.some(kw => combined.includes(kw))) {
+        return cat;
       }
     }
 
-    // ─── Items: líneas que parecen productos ───
+    // Detectar transferencias
+    if (/transferencia|comprobante de transferencia|cvu|cbu/i.test(combined)) {
+      return 'Otros';
+    }
+
+    return 'Otros';
+  }
+
+  /**
+   * Extraer items/productos del ticket
+   */
+  private extractItems(lines: string[]): string[] {
     const items: string[] = [];
+    const skipWords = /total|subtotal|iva|descuento|fecha|hora|ticket|cuit|cuil|cvu|cbu|dni|tel|caja|empleado|comprobante|factura|cambio|efectivo|tarjeta|credito|crédito|débito|debito|gracias|sucursal|dirección|direccion|forma de pago|motivo|transferencia|boleta/i;
+
     for (const line of lines) {
       if (items.length >= 5) break;
-      // Líneas con texto y un número al final (producto + precio)
-      if (/[a-záéíóú]{3,}.*\d/i.test(line) &&
-          !/total|subtotal|iva|descuento|fecha|hora|ticket|cuit|dni|tel/i.test(line) &&
-          line.length > 5 && line.length < 80) {
-        const clean = line.replace(/[\d$.,]+$/g, '').trim();
-        if (clean.length > 2) items.push(clean.substring(0, 40));
+
+      // Línea con texto que parece un producto: tiene letras y puede tener número al final
+      const hasLetters = /[a-záéíóúñ]{3,}/i.test(line);
+      const isNotMeta = !skipWords.test(line);
+      const goodLength = line.length > 4 && line.length < 80;
+
+      if (hasLetters && isNotMeta && goodLength) {
+        // Quitar números al final (precios) y limpiar
+        let clean = line.replace(/[\$€]?\s*[\d.,]+\s*$/g, '').trim();
+        clean = clean.replace(/^\d+\s*[xX×]\s*/, ''); // quitar "2 x "
+        clean = clean.replace(/^\(\d+\)\s*/, ''); // quitar "(1)"
+        if (clean.length > 2 && clean.length < 50) {
+          items.push(clean.substring(0, 40));
+        }
       }
     }
 
-    const confidence = amount > 0 ? 0.75 : 0.4;
-
-    this.logger.log(`Parsed: merchant=${merchant}, amount=${amount}, date=${date}, category=${category}`);
-
-    return { merchant, amount, date, category, items, confidence };
+    return items;
   }
 
   /**
@@ -269,11 +473,10 @@ Respondé SOLO con JSON:
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) return JSON.parse(jsonMatch[0]);
       } catch (e) {
-        this.logger.warn(`Gemini análisis falló: ${e.message}`);
+        this.logger.warn(`Gemini análisis falló: ${e.message?.substring(0, 80)}`);
       }
     }
 
-    // Fallback local
     return {
       summary: 'Análisis basado en tus gastos recientes.',
       patterns: ['Gastos distribuidos en múltiples categorías'],
