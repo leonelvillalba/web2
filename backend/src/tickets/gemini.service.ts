@@ -332,7 +332,6 @@ Respondé SOLO con JSON válido:
   private extractDate(lines: string[], fullText: string): string {
     const today = new Date().toISOString().split('T')[0];
 
-    // ─── Formato texto: "08 de mayo de 2026" o "Viernes, 08 de mayo de 2026" ───
     const meses: Record<string, string> = {
       'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
       'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
@@ -342,14 +341,17 @@ Respondé SOLO con JSON válido:
       'sep': '09', 'oct': '10', 'nov': '11', 'dic': '12',
     };
 
+    // ─── Buscar fecha en texto línea por línea (más preciso) ───
     const textDateRegex = /(\d{1,2})\s+de\s+(\w+)\s+(?:de\s+)?(\d{4})/i;
-    const textMatch = fullText.match(textDateRegex);
-    if (textMatch) {
-      const day = textMatch[1].padStart(2, '0');
-      const monthName = textMatch[2].toLowerCase();
-      const year = textMatch[3];
-      const month = meses[monthName];
-      if (month) return `${year}-${month}-${day}`;
+    for (const line of lines) {
+      const textMatch = line.match(textDateRegex);
+      if (textMatch) {
+        const day = textMatch[1].padStart(2, '0');
+        const monthName = textMatch[2].toLowerCase();
+        const year = textMatch[3];
+        const month = meses[monthName];
+        if (month) return `${year}-${month}-${day}`;
+      }
     }
 
     // ─── Formato numérico: DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY ───
@@ -388,13 +390,19 @@ Respondé SOLO con JSON válido:
   private detectCategory(fullText: string, merchant: string): string {
     const combined = `${fullText} ${merchant}`.toLowerCase();
 
+    // ─── Prioridad 1: Detectar transferencias ANTES que categorías ───
+    if (/transferencia|comprobante de transferencia|cvu|cbu/i.test(combined)) {
+      return 'Otros';
+    }
+
+    // ─── Prioridad 2: Categorías por keywords ───
     const categories: [string, string[]][] = [
-      ['Supermercado', ['carrefour', 'coto', 'dia %', 'jumbo', 'disco', 'vea', 'walmart', 'changomas', 'super', 'almacen', 'almacén', 'autoservicio', 'maxiconsumo', 'makro']],
+      ['Supermercado', ['carrefour', 'coto', 'dia %', 'jumbo', 'disco', 'vea', 'walmart', 'changomas', 'supermercado', 'almacen', 'almacén', 'autoservicio', 'maxiconsumo', 'makro']],
       ['Restaurantes', ['restaurant', 'cafe', 'cafetería', 'bar ', 'pizza', 'burger', 'comida', 'mcdonald', 'starbucks', 'subway', 'sushi', 'parrilla', 'heladería', 'helader']],
       ['Transporte', ['ypf', 'shell', 'axion', 'nafta', 'combustible', 'uber', 'cabify', 'sube', 'peaje', 'estación de servicio', 'gasoil', 'gnc']],
-      ['Salud', ['farmacia', 'farmacity', 'hospital', 'clinica', 'clínica', 'medic', 'salud', 'laboratorio', 'óptica', 'optica', 'odont', 'dent']],
+      ['Salud', ['farmacia', 'farmacity', 'hospital', 'clinica', 'clínica', 'medicina', 'salud', 'laboratorio', 'óptica', 'optica', 'odontol', 'dentist']],
       ['Compras', ['zara', 'nike', 'adidas', 'h&m', 'tienda', 'shopping', 'ropa', 'electro', 'musimundo', 'garbarino', 'fravega', 'frávega', 'falabella', 'easy', 'sodimac', 'pantalón', 'pantalon', 'remera', 'camisa', 'zapatilla']],
-      ['Servicios', ['edenor', 'edesur', 'metrogas', 'telecom', 'personal', 'claro', 'movistar', 'internet', ' luz ', ' gas ', ' agua ', 'aysa', 'telefon']],
+      ['Servicios', ['edenor', 'edesur', 'metrogas', 'telecom', 'personal flow', 'claro', 'movistar', 'internet', ' luz ', ' gas ', ' agua ', 'aysa', 'telefon']],
       ['Suscripciones', ['netflix', 'spotify', 'disney', 'hbo', 'amazon prime', 'youtube premium', 'apple music', 'mercado libre nivel', 'gamepass']],
       ['Vivienda', ['alquiler', 'expensas', 'inmobiliaria', 'propiedad', 'consorcio']],
     ];
@@ -403,11 +411,6 @@ Respondé SOLO con JSON válido:
       if (keywords.some(kw => combined.includes(kw))) {
         return cat;
       }
-    }
-
-    // Detectar transferencias
-    if (/transferencia|comprobante de transferencia|cvu|cbu/i.test(combined)) {
-      return 'Otros';
     }
 
     return 'Otros';
