@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/dashboard.html", "destination": "/views/dashboard.html" },
+    { "source": "/gastos.html", "destination": "/views/gastos.html" },
+    { "source": "/insights.html", "destination": "/views/insights.html" },
+    { "source": "/perfil.html", "destination": "/views/perfil.html" },
+    { "source": "/soporte.html", "destination": "/views/soporte.html" },
+    { "source": "/asesor.html", "destination": "/views/asesor.html" },
+    { "source": "/login.html", "destination": "/views/login.html" },
+    { "source": "/register.html", "destination": "/views/register.html" }
+  ]
+}
