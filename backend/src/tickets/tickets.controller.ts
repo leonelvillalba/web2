@@ -31,14 +31,24 @@ export class TicketsController {
       throw new BadRequestException('No se recibió ninguna imagen');
     }
 
-    const result = await this.geminiService.analyzeTicket(
-      file.buffer,
-      file.mimetype,
-    );
+    try {
+      const result = await this.geminiService.analyzeTicket(
+        file.buffer,
+        file.mimetype,
+      );
 
-    return {
-      success: true,
-      data: result,
-    };
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      const msg = error.message || 'Error desconocido';
+      if (msg.includes('429') || msg.includes('quota') || msg.includes('Quota')) {
+        throw new BadRequestException(
+          'Se superó la cuota de la IA. Intentá de nuevo en unos segundos o contactá al administrador.',
+        );
+      }
+      throw new BadRequestException(msg);
+    }
   }
 }
