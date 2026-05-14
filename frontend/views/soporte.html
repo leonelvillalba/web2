@@ -467,14 +467,17 @@
         });
 
         removeTyping();
+        const data = await res.json();
 
-        if (res.ok) {
-          const data = await res.json();
+        if (res.ok && data.success) {
           const reply = data.data && data.data.reply ? data.data.reply : 'No pude procesar tu mensaje.';
           addMessage(reply, 'bot', 'Sanctuary IA');
           chatHistory.push({ role: 'bot', text: reply });
         } else {
-          addMessage('\u26a0\ufe0f Hubo un error al procesar tu consulta. Intent\u00e1 de nuevo.', 'bot', 'Sanctuary IA');
+          // Mostrar el error real del servidor si existe
+          const errMsg = data.message || 'Hubo un error al procesar tu consulta.';
+          console.error('Chat error:', data);
+          addMessage('\u26a0\ufe0f ' + errMsg, 'bot', 'Sanctuary IA');
         }
       } catch (err) {
         removeTyping();
