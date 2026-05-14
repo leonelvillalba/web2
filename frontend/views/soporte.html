@@ -391,7 +391,7 @@
   <script src="../js/components/sidebar.js"></script>
   <script src="../js/modules/config.js"></script>
   <script src="../js/modules/api.js"></script>
-  <script src="../js/modules/auth.js"></script>
+<script src="../js/modules/auth.js"></script>
   <script src="../js/modules/ui.js"></script>
   <script src="../js/modules/theme.js"></script>
   <script src="../js/modules/navbar.js"></script>
@@ -409,7 +409,7 @@
       document.querySelectorAll('.support-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.support-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
-      document.getElementById(`panel-${tab}`).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
     }
 
     // ─── QUICK QUESTIONS ───
@@ -418,37 +418,18 @@
       sendAIMessage();
     }
 
-    // ─── AI BOT RESPONSES ───
-    const botResponses = {
-      'ticket': '📷 Para escanear un ticket, andá a la página de **Gastos** y hacé clic en "Escanear Ticket". Podés subir una foto o arrastrarla. Nuestra IA extrae automáticamente el monto, fecha y comercio.',
-      'gasto': '💰 Para agregar un gasto manualmente, andá a **Gastos** y hacé clic en el botón "+ Nuevo Gasto". Completá el formulario con el monto, fecha, categoría y descripción.',
-      'plan': '📋 El **Plan Básico** es gratuito e incluye hasta 3 escaneos por día y estadísticas básicas. El **Plan Plus** ($4.99/mes) tiene escaneos ilimitados, asistente IA y exportación PDF.',
-      'oscuro': '🌙 Podés activar el Modo Oscuro en **Mi Perfil → Apariencia**. Desde ahí también podés cambiar el color principal de la plataforma.',
-      'presupuesto': '🎯 Para cambiar tu presupuesto mensual, andá a **Mi Perfil** y buscá el campo "Presupuesto Mensual". Guardá los cambios y el dashboard se actualizará.',
-      'salud': '📊 El Índice de Salud Financiera es un número del 0 al 99 que indica qué tan bien están tus finanzas. Se calcula comparando tus ingresos y gastos. Cuanto más alto, mejor.',
-      'default': ['¡Buena pregunta! Dejame que analizo tu consulta...', 'Entiendo tu inquietud. Te recomiendo revisar la sección correspondiente en la plataforma o contactar a un asesor humano si necesitás ayuda más específica.', 'Para más información sobre ese tema, podés visitarr la sección de Perspectivas IA donde encontrarás análisis detallados de tu situación financiera.'],
-    };
-
-    function getBotResponse(msg) {
-      const m = msg.toLowerCase();
-      if (m.includes('ticket') || m.includes('escane') || m.includes('foto')) return botResponses.ticket;
-      if (m.includes('gasto') || m.includes('agreg') || m.includes('registr')) return botResponses.gasto;
-      if (m.includes('plan') || m.includes('plus') || m.includes('básico') || m.includes('basico') || m.includes('diferencia')) return botResponses.plan;
-      if (m.includes('oscuro') || m.includes('dark') || m.includes('apariencia') || m.includes('color')) return botResponses.oscuro;
-      if (m.includes('presupuesto') || m.includes('budget')) return botResponses.presupuesto;
-      if (m.includes('salud') || m.includes('índice') || m.includes('indice') || m.includes('puntaje')) return botResponses.salud;
-      const defaults = botResponses.default;
-      return defaults[Math.floor(Math.random() * defaults.length)];
-    }
+    // ─── CHAT CON IA REAL ───
+    const chatHistory = [];
 
     function addMessage(text, type, sender) {
       const container = document.getElementById('ai-chat-messages');
       const now = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
       const div = document.createElement('div');
-      div.innerHTML = `
-        <div class="chat-bubble ${type}">${text}</div>
-        <div class="chat-bubble-meta">${sender} • ${now}</div>
-      `;
+      const htmlText = text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      div.innerHTML = '<div class="chat-bubble ' + type + '">' + htmlText + '</div>'
+        + '<div class="chat-bubble-meta">' + sender + ' \u2022 ' + now + '</div>';
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
@@ -457,7 +438,7 @@
       const container = document.getElementById('ai-chat-messages');
       const div = document.createElement('div');
       div.id = 'typing';
-      div.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+      div.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
@@ -472,35 +453,56 @@
       const msg = input.value.trim();
       if (!msg) return;
       input.value = '';
+      input.disabled = true;
 
       addMessage(msg, 'user', user.firstName || 'Vos');
+      chatHistory.push({ role: 'user', text: msg });
       addTyping();
 
-      await new Promise(r => setTimeout(r, 900 + Math.random() * 800));
-      removeTyping();
+      try {
+        const res = await fetch(API_BASE + '/tickets/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, history: chatHistory.slice(-6) }),
+        });
 
-      const response = getBotResponse(msg);
-      addMessage(response, 'bot', 'Sanctuary IA');
+        removeTyping();
+
+        if (res.ok) {
+          const data = await res.json();
+          const reply = data.data && data.data.reply ? data.data.reply : 'No pude procesar tu mensaje.';
+          addMessage(reply, 'bot', 'Sanctuary IA');
+          chatHistory.push({ role: 'bot', text: reply });
+        } else {
+          addMessage('\u26a0\ufe0f Hubo un error al procesar tu consulta. Intent\u00e1 de nuevo.', 'bot', 'Sanctuary IA');
+        }
+      } catch (err) {
+        removeTyping();
+        addMessage('\u26a0\ufe0f No se pudo conectar con el servidor. Verific\u00e1 tu conexi\u00f3n.', 'bot', 'Sanctuary IA');
+      }
+
+      input.disabled = false;
+      input.focus();
     }
 
     // ─── HUMAN FORM ───
-    document.getElementById('human-form').addEventListener('submit', async (e) => {
+    document.getElementById('human-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const btn = document.getElementById('human-btn');
-      const subject = document.getElementById('h-subject').value;
-      const message = document.getElementById('h-message').value.trim();
+      var btn = document.getElementById('human-btn');
+      var subject = document.getElementById('h-subject').value;
+      var message = document.getElementById('h-message').value.trim();
 
       hideAlert('#human-alert');
-      if (!subject) { showAlert('#human-alert', 'Seleccioná un asunto'); return; }
-      if (!message || message.length < 10) { showAlert('#human-alert', 'Describí tu problema con más detalle (mínimo 10 caracteres)'); return; }
+      if (!subject) { showAlert('#human-alert', 'Seleccion\u00e1 un asunto'); return; }
+      if (!message || message.length < 10) { showAlert('#human-alert', 'Describ\u00ed tu problema con m\u00e1s detalle (m\u00ednimo 10 caracteres)'); return; }
 
       setLoading(btn, true);
-      await new Promise(r => setTimeout(r, 1500)); // simulate send
+      await new Promise(function(r) { setTimeout(r, 1500); });
       setLoading(btn, false);
 
       document.getElementById('human-form').reset();
       show('#human-success');
-      setTimeout(() => hide('#human-success'), 5000);
+      setTimeout(function() { hide('#human-success'); }, 5000);
     });
   </script>
 </body>

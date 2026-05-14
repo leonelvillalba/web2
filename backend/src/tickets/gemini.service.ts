@@ -487,4 +487,179 @@ Respondé SOLO con JSON:
       profile: 'Equilibrado',
     };
   }
+
+  /**
+   * Chat con IA — responde preguntas del usuario
+   * Intenta Gemini primero, fallback a respuestas locales inteligentes
+   */
+  async chat(message: string, history: { role: string; text: string }[]): Promise<string> {
+    // ─── Intentar con Gemini ───
+    if (this.geminiApiKey) {
+      try {
+        const { GoogleGenerativeAI } = await import('@google/generative-ai');
+        const genAI = new GoogleGenerativeAI(this.geminiApiKey);
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+        const systemPrompt = `Sos "Sanctuary IA", el asistente virtual de la plataforma de gestión de gastos personales "Sanctuary AI".
+
+Tu personalidad:
+- Respondés en español argentino (vos, sos, tenés, etc.)
+- Sos amigable, conciso y profesional
+- Usás emojis moderadamente para ser más expresivo
+- Tus respuestas son CORTAS (2-4 oraciones máximo)
+
+Sobre la plataforma Sanctuary AI:
+- Permite registrar gastos manualmente o escaneando tickets con IA (OCR)
+- Tiene dashboard con estadísticas, gráficos y balance
+- Ofrece análisis de gastos con IA y recomendaciones financieras
+- Tiene modo oscuro/claro configurable desde el perfil
+- Roles: Usuario (registra gastos) y Asesor (analiza clientes)
+- Plan Básico (gratis) y Plan Plus ($4.99/mes con más features)
+- La sección "Perspectivas IA" analiza patrones de consumo
+
+También podés dar consejos financieros generales:
+- Regla 50/30/20 (necesidades/deseos/ahorro)
+- Importancia de un fondo de emergencia
+- Tips para reducir gastos innecesarios
+- Cómo priorizar deudas
+
+Si te preguntan algo que no sabés, sugerí contactar al asesor humano desde el Centro de Soporte.`;
+
+        // Construir historial para Gemini
+        const contents = [];
+        
+        // Agregar historial previo
+        for (const msg of history.slice(-6)) { // últimos 6 mensajes para contexto
+          contents.push({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.text }],
+          });
+        }
+
+        // Agregar mensaje actual
+        contents.push({
+          role: 'user',
+          parts: [{ text: message }],
+        });
+
+        const result = await model.generateContent({
+          contents,
+          systemInstruction: systemPrompt,
+        } as any);
+
+        const reply = result.response.text();
+        if (reply && reply.trim().length > 0) {
+          this.logger.log(`Gemini chat reply: ${reply.substring(0, 100)}`);
+          return reply.trim();
+        }
+      } catch (e) {
+        this.logger.warn(`Gemini chat falló, usando fallback: ${e.message?.substring(0, 80)}`);
+      }
+    }
+
+    // ─── Fallback local inteligente ───
+    return this.getLocalChatResponse(message);
+  }
+
+  /**
+   * Respuestas locales inteligentes para el chat
+   */
+  private getLocalChatResponse(message: string): string {
+    const m = message.toLowerCase();
+
+    // Saludos
+    if (/^(hola|buenas|hey|buen[ao]s?\s*(días|tardes|noches)?|qué\s*tal|hi|hello)/i.test(m)) {
+      return '¡Hola! 👋 Soy el asistente IA de Sanctuary. ¿En qué puedo ayudarte hoy? Podés preguntarme sobre la plataforma, tus gastos o tips financieros.';
+    }
+
+    // Despedidas
+    if (/^(gracias|chau|adiós|adios|bye|nos vemos|hasta luego)/i.test(m)) {
+      return '¡De nada! 😊 Si necesitás algo más, no dudes en escribirme. ¡Que tengas un excelente día!';
+    }
+
+    // Escanear tickets
+    if (/ticket|escane|ocr|foto|imagen|comprobante|factura|recibo/i.test(m)) {
+      return '📷 Para escanear un ticket, andá a **Gastos** → botón **"Escanear Ticket"**. Podés subir una foto o arrastrarla al área de carga. La IA extrae automáticamente el comercio, monto, fecha y categoría. ¡Funciona con tickets argentinos y europeos!';
+    }
+
+    // Agregar gastos
+    if (/agreg|registr|nuev[oa]\s*gasto|cargar\s*gasto|carg[oa]/i.test(m)) {
+      return '💰 Para agregar un gasto manualmente, andá a **Gastos** y hacé clic en **"+ Nuevo Gasto"**. Elegí el tipo (Gasto o Ingreso), completá el monto, fecha, categoría y descripción. ¡Listo!';
+    }
+
+    // Planes
+    if (/plan|plus|básico|basico|precio|premium|pag[ao]|costo|suscripci/i.test(m)) {
+      return '📋 Tenemos 2 planes:\n• **Básico** (gratis): hasta 3 escaneos/día, estadísticas básicas\n• **Plus** ($4.99/mes): escaneos ilimitados, asistente IA premium, exportación PDF y análisis avanzado\n\nPodés cambiar tu plan desde **Mi Perfil**.';
+    }
+
+    // Modo oscuro / apariencia
+    if (/oscuro|dark|claro|light|tema|color|apariencia|modo/i.test(m)) {
+      return '🌙 Para cambiar el tema, andá a **Mi Perfil → Apariencia**. Podés elegir entre modo oscuro y claro. ¡El modo oscuro es ideal para cuidar tus ojos de noche!';
+    }
+
+    // Presupuesto
+    if (/presupuesto|budget|meta|límite|limite|objetivo/i.test(m)) {
+      return '🎯 Podés configurar tu presupuesto mensual en **Mi Perfil**. Una vez seteado, el dashboard te muestra cuánto llevás gastado vs. tu presupuesto con una barra de progreso visual.';
+    }
+
+    // Dashboard / estadísticas
+    if (/dashboard|panel|estadístic|estad[ií]stic|resum|balance|grafic/i.test(m)) {
+      return '📊 El **Dashboard** es tu centro de control: muestra el balance total, gastos por categoría con gráficos, tendencias mensuales y tu índice de salud financiera. Se actualiza en tiempo real cada vez que cargás un gasto.';
+    }
+
+    // Salud financiera
+    if (/salud\s*financ|índice|indice|puntaje|score|puntuaci/i.test(m)) {
+      return '📈 El **Índice de Salud Financiera** es un número del 0 al 99 que refleja qué tan bien están tus finanzas. Se calcula comparando tus ingresos vs gastos y la diversificación de categorías. ¡Arriba de 70 es excelente!';
+    }
+
+    // Perspectivas IA / insights
+    if (/perspectiva|insight|análisis|analisis|recomendaci|consej|patr[oó]n/i.test(m)) {
+      return '🧠 La sección **Perspectivas IA** analiza tus gastos con inteligencia artificial y te da:\n• Patrones de consumo detectados\n• Recomendaciones personalizadas para ahorrar\n• Tu perfil de gasto (Ahorrador, Equilibrado, etc.)';
+    }
+
+    // Asesor humano
+    if (/asesor|human[oa]|persona|hablar\s*con\s*alguien|contactar/i.test(m)) {
+      return '👤 Si preferís hablar con un asesor humano, podés hacerlo desde la pestaña **"Asesor Humano"** acá mismo en el Centro de Soporte. Horario: Lun-Vie 9:00-18:00, Sáb 10:00-14:00.';
+    }
+
+    // Tips de ahorro
+    if (/ahorr|gastar\s*menos|reducir|tip|consejo\s*financ|dinero/i.test(m)) {
+      return '💡 Algunos tips para ahorrar:\n• Aplicá la **regla 50/30/20**: 50% necesidades, 30% deseos, 20% ahorro\n• Revisá tus suscripciones mensuales — ¿las usás todas?\n• Armá un **fondo de emergencia** de 3-6 meses de gastos\n• Evitá compras impulsivas: esperá 24hs antes de comprar algo no planificado';
+    }
+
+    // Deudas
+    if (/deuda|deb[oe]|tarjeta|crédito|credito|financ|cuota|préstamo|prestamo/i.test(m)) {
+      return '💳 Para manejar deudas te recomiendo:\n• Priorizá las de **mayor interés** primero (método avalancha)\n• O pagá las más chicas primero para ganar impulso (método bola de nieve)\n• Evitá pagar solo el mínimo de la tarjeta\n• Registrá todas tus cuotas en Sanctuary para tener visibilidad total';
+    }
+
+    // Categorías
+    if (/categor[ií]a|tipo\s*de\s*gasto|clasificar/i.test(m)) {
+      return '🏷️ Las categorías disponibles son: **Supermercado, Transporte, Restaurantes, Salud, Vivienda, Servicios, Suscripciones, Compras** y **Otros**. Al escanear un ticket, la IA asigna la categoría automáticamente.';
+    }
+
+    // Seguridad / datos
+    if (/segur|priv|dato|contraseña|password|clave/i.test(m)) {
+      return '🔒 Tu seguridad es prioridad. Las contraseñas se almacenan encriptadas con bcrypt, las sesiones usan JWT tokens y nunca compartimos tus datos financieros. Podés cambiar tu contraseña desde **Mi Perfil**.';
+    }
+
+    // Exportar / descargar
+    if (/export|descar|pdf|excel|csv|imprimi/i.test(m)) {
+      return '📥 La exportación de datos está disponible en el **Plan Plus**. Podés descargar tus gastos en formato PDF o CSV desde la sección de Gastos. ¡Ideal para llevar registros o compartir con tu contador!';
+    }
+
+    // Qué es Sanctuary
+    if (/qu[eé]\s*(es|hace)|para\s*qu[eé]|funcionalidad|feature|c[oó]mo\s*funciona/i.test(m)) {
+      return '🏛️ **Sanctuary AI** es tu plataforma inteligente de gestión de gastos. Podés:\n• Registrar gastos manualmente o escaneando tickets con IA\n• Ver estadísticas y gráficos en el dashboard\n• Recibir análisis y recomendaciones con IA\n• Contactar asesores financieros humanos';
+    }
+
+    // Fallback inteligente
+    const fallbacks = [
+      '🤔 Interesante pregunta. No tengo una respuesta específica para eso, pero podés consultar con un **asesor humano** desde la pestaña "Asesor Humano" para ayuda personalizada.',
+      '💬 No estoy seguro de poder ayudarte con eso específicamente. ¿Querés que te explique algo sobre la plataforma, tips de ahorro o cómo usar alguna función?',
+      '🧐 Esa consulta va un poco más allá de mis capacidades. Te sugiero contactar al equipo de soporte en la pestaña **"Asesor Humano"** o escribir a soporte@sanctuary.ai.',
+    ];
+
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  }
 }
+

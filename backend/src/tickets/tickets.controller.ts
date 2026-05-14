@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Body,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -15,7 +16,7 @@ export class TicketsController {
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('ticket', {
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+      limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (req, file, cb) => {
         const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
         if (allowed.includes(file.mimetype)) {
@@ -36,19 +37,29 @@ export class TicketsController {
         file.buffer,
         file.mimetype,
       );
-
-      return {
-        success: true,
-        data: result,
-      };
+      return { success: true, data: result };
     } catch (error) {
       const msg = error.message || 'Error desconocido';
       if (msg.includes('429') || msg.includes('quota') || msg.includes('Quota')) {
         throw new BadRequestException(
-          'Se superó la cuota de la IA. Intentá de nuevo en unos segundos o contactá al administrador.',
+          'Se superó la cuota de la IA. Intentá de nuevo en unos segundos.',
         );
       }
       throw new BadRequestException(msg);
+    }
+  }
+
+  @Post('chat')
+  async chat(@Body() body: { message: string; history?: { role: string; text: string }[] }) {
+    if (!body.message || body.message.trim().length === 0) {
+      throw new BadRequestException('El mensaje no puede estar vacío');
+    }
+
+    try {
+      const response = await this.geminiService.chat(body.message.trim(), body.history || []);
+      return { success: true, data: { reply: response } };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Error al procesar el mensaje');
     }
   }
 }
