@@ -29,11 +29,34 @@ export class AdvisorService {
 
         const transactionCount = expenses.length;
 
-        // Salud financiera: % de presupuesto usado
+        // Salud financiera mejorada: combina presupuesto e ingresos vs gastos
         const budget = Number(user.budget) || 0;
-        const healthScore = budget > 0
-          ? Math.max(0, Math.min(99, Math.round(100 - (totalExpenses / budget) * 100)))
-          : 50;
+        let healthScore: number;
+
+        if (transactionCount === 0) {
+          // Sin transacciones → salud neutra alta
+          healthScore = 99;
+        } else if (totalExpenses === 0) {
+          // Solo ingresos, sin gastos → excelente salud
+          healthScore = 99;
+        } else {
+          // Ratio ingresos/gastos (cuánto cubre los ingresos los gastos)
+          const incomeRatio = totalIncome > 0
+            ? Math.min(100, Math.round((totalIncome / totalExpenses) * 100))
+            : 0; // Sin ingresos y con gastos = muy mala salud
+
+          if (budget > 0) {
+            // Si hay presupuesto: 40% uso de presupuesto + 60% ratio ingresos/gastos
+            const budgetScore = Math.max(0, Math.min(100, Math.round(100 - (totalExpenses / budget) * 100)));
+            healthScore = Math.round(budgetScore * 0.4 + incomeRatio * 0.6);
+          } else {
+            // Sin presupuesto: basarse 100% en ratio ingresos/gastos
+            healthScore = incomeRatio;
+          }
+
+          // Clamp entre 0 y 99
+          healthScore = Math.max(0, Math.min(99, healthScore));
+        }
 
         const { password, ...userWithoutPw } = user;
 
