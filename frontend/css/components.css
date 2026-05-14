@@ -73,6 +73,9 @@
 .form-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.05); box-shadow: 0 0 0 4px rgba(233,69,96,0.12); }
 .form-input::placeholder { color: var(--text-light); }
 .form-input.error { border-color: var(--error); }
+select.form-input { appearance: auto; background-color: var(--bg); color: var(--text); }
+select.form-input option { background: var(--bg-card); color: var(--text); padding: 8px; }
+select.form-input option:checked { background: var(--accent); color: #fff; }
 
 
 /* ─── Alertas ─── */
