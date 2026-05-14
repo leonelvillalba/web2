@@ -36,6 +36,9 @@ export class User {
   @Column({ type: 'decimal', default: 0 })
   budget: number;
 
+  @Column({ default: 'ARS', nullable: true })
+  currency: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

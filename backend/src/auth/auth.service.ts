@@ -48,7 +48,15 @@ export class AuthService {
   }
 
   async updateProfile(userId: number, data: Partial<User>) {
-    await this.usersRepo.update(userId, data);
+    // Solo permitir campos válidos para evitar errores de columnas inexistentes
+    const allowed = ['firstName', 'lastName', 'phone', 'location', 'bio', 'plan', 'budget', 'currency'];
+    const safeData: any = {};
+    for (const key of allowed) {
+      if (data[key] !== undefined) safeData[key] = data[key];
+    }
+    if (Object.keys(safeData).length > 0) {
+      await this.usersRepo.update(userId, safeData);
+    }
     return this.getProfile(userId);
   }
 }
