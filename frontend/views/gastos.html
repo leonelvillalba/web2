@@ -15,10 +15,7 @@
     <div class="main-content">
       <header class="navbar">
         <div class="navbar-left">
-          <div class="navbar-search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Buscar gastos..." id="search-input">
-          </div>
+          <!-- Removed search bar -->
         </div>
         <div class="navbar-right">
           <div class="notif-wrapper" id="notif-wrapper">
@@ -189,7 +186,7 @@
 
     async function loadExpenses() {
       try {
-        allExpenses = await api.get(`/expenses?userId=${user.id}`);
+        allExpenses = await api.get(`/expenses`);
         renderExpenses();
         updateStats();
       } catch (err) {

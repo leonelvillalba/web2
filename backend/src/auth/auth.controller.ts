@@ -1,4 +1,7 @@
-import { Controller, Post, Get, Put, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, Param, UseGuards, UnauthorizedException } from '@nestjs/common';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { GetUser } from './get-user.decorator';
+import { User } from '../entities/user.entity';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -20,13 +23,17 @@ export class AuthController {
     return this.authService.googleLogin(body.token);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('profile/:id')
-  getProfile(@Param('id') id: string) {
+  getProfile(@Param('id') id: string, @GetUser() user: User) {
+    if (user.id !== +id) throw new UnauthorizedException('No autorizado');
     return this.authService.getProfile(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('profile/:id')
-  updateProfile(@Param('id') id: string, @Body() body: any) {
+  updateProfile(@Param('id') id: string, @Body() body: any, @GetUser() user: User) {
+    if (user.id !== +id) throw new UnauthorizedException('No autorizado');
     return this.authService.updateProfile(+id, body);
   }
 }

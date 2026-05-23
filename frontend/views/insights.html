@@ -85,8 +85,8 @@
     async function loadInsights() {
       try {
         const [insights, expenses] = await Promise.all([
-          api.get(`/insights?userId=${user.id}`),
-          api.get(`/expenses?userId=${user.id}`),
+          api.get(`/insights`),
+          api.get(`/expenses`),
         ]);
 
         // Score
@@ -186,7 +186,19 @@
 
       } catch (err) {
         console.error(err);
-        toast('Error al cargar perspectivas', 'error');
+        if (err.message && err.message.includes('requieren plan Plus')) {
+          document.querySelector('.page-content').innerHTML = `
+            <div class="card" style="text-align:center;padding:60px 20px">
+              <div style="font-size:4rem;margin-bottom:16px">🔒</div>
+              <h2>Contenido Exclusivo Plus</h2>
+              <p class="text-muted" style="max-width:400px;margin:10px auto">Las perspectivas IA avanzadas y el análisis de patrones están disponibles solo en el plan Plus.</p>
+              <button class="btn btn-accent mt-4" onclick="plans.showUpgradePrompt('stats')">Mejorar a Plus</button>
+            </div>
+          `;
+          plans.showUpgradePrompt('stats');
+        } else {
+          toast('Error al cargar perspectivas', 'error');
+        }
       }
     }
   </script>

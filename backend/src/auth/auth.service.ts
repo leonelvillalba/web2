@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
 
 @Injectable()
@@ -8,7 +9,13 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private usersRepo: Repository<User>,
+    private jwtService: JwtService,
   ) {}
+
+  private generateToken(user: User) {
+    const payload = { sub: user.id, email: user.email, plan: user.plan, role: user.role };
+    return this.jwtService.sign(payload);
+  }
 
   async register(data: { firstName: string; lastName: string; email: string; password: string; role?: string }) {
     const existing = await this.usersRepo.findOne({ where: { email: data.email } });
@@ -27,7 +34,7 @@ export class AuthService {
 
     const saved = await this.usersRepo.save(user);
     const { password, ...result } = saved;
-    return { user: result };
+    return { user: result, token: this.generateToken(saved) };
   }
 
   async login(email: string, password: string) {
@@ -37,7 +44,7 @@ export class AuthService {
     }
 
     const { password: _, ...result } = user;
-    return { user: result };
+    return { user: result, token: this.generateToken(user) };
   }
 
   async googleLogin(token: string) {
@@ -77,7 +84,7 @@ export class AuthService {
       }
       
       const { password, ...result } = user;
-      return { user: result };
+      return { user: result, token: this.generateToken(user) };
     } catch (e) {
       return { error: 'Error al verificar el token de Google: ' + e.message };
     }

@@ -8,7 +8,11 @@ const auth = {
     try { return JSON.parse(localStorage.getItem('sanctuary_user')); } catch { return null; }
   },
   setUser(user) { localStorage.setItem('sanctuary_user', JSON.stringify(user)); },
-  removeUser() { localStorage.removeItem('sanctuary_user'); },
+  setToken(token) { localStorage.setItem('sanctuary_token', token); },
+  removeUser() { 
+    localStorage.removeItem('sanctuary_user'); 
+    localStorage.removeItem('sanctuary_token');
+  },
   isLoggedIn() { return !!this.getUser(); },
   requireAuth() {
     if (!this.isLoggedIn()) { window.location.href = nav.toView('login.html'); return false; }
@@ -22,18 +26,27 @@ const auth = {
   },
   async login(email, password) {
     const data = await api.post('/auth/login', { email, password });
-    if (data.user) this.setUser(data.user);
+    if (data.user) {
+      this.setUser(data.user);
+      if (data.token) this.setToken(data.token);
+    }
     return data;
   },
   async register(firstName, lastName, email, password) {
     const data = await api.post('/auth/register', { firstName, lastName, email, password });
-    if (data.user) this.setUser(data.user);
+    if (data.user) {
+      this.setUser(data.user);
+      if (data.token) this.setToken(data.token);
+    }
     return data;
   },
   // Inicio de sesión con Token oficial de Google
   async loginWithGoogleToken(token) {
     const data = await api.post('/auth/google', { token });
-    if (data.user) this.setUser(data.user);
+    if (data.user) {
+      this.setUser(data.user);
+      if (data.token) this.setToken(data.token);
+    }
     return data;
   }
 };

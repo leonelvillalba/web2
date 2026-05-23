@@ -39,6 +39,12 @@ export class User {
   @Column({ default: 'ARS', nullable: true })
   currency: string;
 
+  @Column({ type: 'date', nullable: true })
+  lastScanDate: Date;
+
+  @Column({ default: 0 })
+  scansToday: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

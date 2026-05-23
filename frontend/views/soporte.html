@@ -460,28 +460,22 @@
       addTyping();
 
       try {
-        const res = await fetch(API_BASE + '/tickets/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg, history: chatHistory.slice(-6) }),
-        });
-
+        const data = await api.post('/tickets/chat', { message: msg, history: chatHistory.slice(-6) });
         removeTyping();
-        const data = await res.json();
 
-        if (res.ok && data.success) {
+        if (data.success) {
           const reply = data.data && data.data.reply ? data.data.reply : 'No pude procesar tu mensaje.';
           addMessage(reply, 'bot', 'Sanctuary IA');
           chatHistory.push({ role: 'bot', text: reply });
-        } else {
-          // Mostrar el error real del servidor si existe
-          const errMsg = data.message || 'Hubo un error al procesar tu consulta.';
-          console.error('Chat error:', data);
-          addMessage('\u26a0\ufe0f ' + errMsg, 'bot', 'Sanctuary IA');
         }
       } catch (err) {
         removeTyping();
-        addMessage('\u26a0\ufe0f No se pudo conectar con el servidor. Verific\u00e1 tu conexi\u00f3n.', 'bot', 'Sanctuary IA');
+        if (err.message && err.message.includes('exclusivo del plan Plus')) {
+          plans.showUpgradePrompt('ai');
+          addMessage('\u26a0\ufe0f Necesitás el plan Plus para usar el asistente IA.', 'bot', 'Sanctuary IA');
+        } else {
+          addMessage('\u26a0\ufe0f Hubo un error: ' + err.message, 'bot', 'Sanctuary IA');
+        }
       }
 
       input.disabled = false;

@@ -55,7 +55,13 @@ export class DashboardService {
       balance: 142500,
       monthlySpending,
       budget: Number(user.budget) || 4200,
-      savingsGoals: [
+      savingsGoals: user.plan === 'plus' ? [
+        { id: 1, name: 'Vacaciones de Verano', target: 8000, current: 6000, color: '#006c47' },
+        { id: 2, name: 'Fondo de Emergencia', target: 20000, current: 8400, color: '#001736' },
+        { id: 3, name: 'Auto Nuevo', target: 55000, current: 6600, color: '#00b4d8' },
+        { id: 4, name: 'Inversión Cripto', target: 10000, current: 2000, color: '#7c3aed' },
+        { id: 5, name: 'Renovar PC', target: 15000, current: 15000, color: '#dc2626' },
+      ] : [
         { id: 1, name: 'Vacaciones de Verano', target: 8000, current: 6000, color: '#006c47' },
         { id: 2, name: 'Fondo de Emergencia', target: 20000, current: 8400, color: '#001736' },
         { id: 3, name: 'Auto Nuevo', target: 55000, current: 6600, color: '#00b4d8' },

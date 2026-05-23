@@ -9,6 +9,10 @@ const api = {
       method,
       headers: { 'Content-Type': 'application/json' },
     };
+    const token = localStorage.getItem('sanctuary_token');
+    if (token) {
+      opts.headers['Authorization'] = `Bearer ${token}`;
+    }
     if (data) opts.body = JSON.stringify(data);
     try {
       const res = await fetch(`${API_BASE}${endpoint}`, opts);
