@@ -451,7 +451,7 @@ Respondé SOLO con JSON válido:
   async analyzeExpenses(expenses: any[]): Promise<{
     summary: string;
     patterns: string[];
-    recommendations: string[];
+    recommendations: { title: string; text: string }[];
     profile: string;
   }> {
     if (this.geminiApiKey) {
@@ -468,8 +468,8 @@ Respondé SOLO con JSON válido:
 
 ${expensesSummary}
 
-Respondé SOLO con JSON:
-{"summary":"resumen breve","patterns":["patron1","patron2"],"recommendations":["rec1","rec2"],"profile":"Ahorrador|Equilibrado|Impulsivo|En riesgo"}`;
+Respondé SOLO con JSON válido usando esta estructura exacta:
+{"summary":"resumen breve de la salud financiera","patterns":["patron 1","patron 2"],"recommendations":[{"title":"Título corto","text":"Consejo detallado"}],"profile":"Ahorrador|Equilibrado|Impulsivo|En riesgo"}`;
 
         const result = await model.generateContent(prompt);
         const text = result.response.text();
@@ -480,10 +480,20 @@ Respondé SOLO con JSON:
       }
     }
 
+    // Fallback inteligente (calcula top category localmente si no hay IA)
+    const cats = {};
+    expenses.filter(e => e.type === 'expense').forEach(e => { cats[e.category] = (cats[e.category]||0) + Number(e.amount); });
+    const topCat = Object.entries(cats).sort(([,a],[,b]) => Number(b) - Number(a))[0] || ['Gastos', 0];
+
     return {
-      summary: 'Análisis basado en tus gastos recientes.',
+      summary: 'Tu salud financiera está estable, pero hay oportunidades de mejora.',
       patterns: ['Gastos distribuidos en múltiples categorías'],
-      recommendations: ['Revisá tus gastos más frecuentes para identificar ahorros'],
+      recommendations: [
+        { title: 'Optimizar Suscripciones', text: 'Revisá tus suscripciones mensuales. Podés ahorrar cancelando las que no usás.' },
+        { title: `${topCat[0]} es tu mayor gasto`, text: `Gastaste $${topCat[1]} en esta categoría. Considerá buscar alternativas más económicas.` },
+        { title: 'Fondo de Emergencia', text: 'Intentá ahorrar el equivalente a 3-6 meses de gastos para imprevistos.' },
+        { title: 'Registrá todos los gastos', text: 'Cuantos más gastos registres, mejores serán las recomendaciones.' }
+      ],
       profile: 'Equilibrado',
     };
   }

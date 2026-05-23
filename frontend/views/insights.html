@@ -109,12 +109,18 @@
         // Recommendations
         let recs = [];
         if (insights && insights.aiRecommendations && insights.aiRecommendations.length > 0) {
-          recs = insights.aiRecommendations.map((text, i) => {
+          recs = insights.aiRecommendations.map((rec, i) => {
             const icons = ['💡', '🎯', '💰', '📊', '⚡'];
             const priorities = ['info', 'warning', 'success', 'primary', 'secondary'];
+            
+            // Compatibilidad por si rec es un string (código viejo) o un objeto {title, text}
+            const isObject = typeof rec === 'object' && rec !== null;
+            const title = isObject ? (rec.title || 'Consejo IA') : 'Consejo IA';
+            const text = isObject ? (rec.text || '') : rec;
+            
             return {
               icon: icons[i % icons.length],
-              title: 'Consejo IA',
+              title: title,
               text: text,
               priority: priorities[i % priorities.length]
             };
