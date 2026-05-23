@@ -470,7 +470,7 @@
         }
       } catch (err) {
         removeTyping();
-        if (err.message && err.message.includes('exclusivo del plan Plus')) {
+        if (err.message && (err.message.includes('exclusivo del plan Plus') || err.message.includes('Forbidden'))) {
           plans.showUpgradePrompt('ai');
           addMessage('\u26a0\ufe0f Necesitás el plan Plus para usar el asistente IA.', 'bot', 'Sanctuary IA');
         } else {

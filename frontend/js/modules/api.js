@@ -17,7 +17,7 @@ const api = {
     try {
       const res = await fetch(`${API_BASE}${endpoint}`, opts);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || json.message || 'Error del servidor');
+      if (!res.ok) throw new Error(json.message || json.error || 'Error del servidor');
       return json;
     } catch (err) {
       if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
