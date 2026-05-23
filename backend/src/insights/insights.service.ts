@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Expense } from '../entities/expense.entity';
+import { GeminiService } from '../tickets/gemini.service';
 
 @Injectable()
 export class InsightsService {
   constructor(
     @InjectRepository(Expense)
     private expensesRepo: Repository<Expense>,
+    private geminiService: GeminiService,
   ) {}
 
   async getInsights(userId: number) {
@@ -16,6 +18,9 @@ export class InsightsService {
     const totalSpending = expenses
       .filter((e) => e.type === 'expense')
       .reduce((sum, e) => sum + Number(e.amount), 0);
+      
+    // Analizar gastos reales con IA Gemini
+    const aiAnalysis = await this.geminiService.analyzeExpenses(expenses);
 
     return {
       potentialSavings: Math.round(totalSpending * 0.15), // 15% del gasto es ahorro potencial
@@ -28,8 +33,9 @@ export class InsightsService {
         { month: 'May', actual: Math.round(totalSpending) || 3142, forecast: 2900 },
         { month: 'Jun', actual: null, forecast: 3000 },
       ],
-      aiMessage:
-        'Su fondo de emergencia actual cubre 4,2 meses. Si reasigna $200 de cenas fuera a sus ahorros de alto rendimiento, alcanzará su meta de 6 meses para septiembre.',
+      aiMessage: aiAnalysis.summary,
+      aiRecommendations: aiAnalysis.recommendations,
+      aiProfile: aiAnalysis.profile
     };
   }
 }

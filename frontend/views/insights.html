@@ -94,7 +94,11 @@
         const totalInc = expenses.filter(e => e.type === 'income').reduce((s, e) => s + Number(e.amount), 0);
         const score = totalInc > 0 ? Math.min(99, Math.round((1 - totalExp/totalInc) * 100 + 50)) : 72;
         setText('#score', score);
-        setText('#score-desc', score >= 70 ? '¡Tu salud financiera es buena! Seguí optimizando.' : 'Podés mejorar. Mirá las recomendaciones.');
+        if (insights && insights.aiMessage) {
+          setText('#score-desc', insights.aiMessage);
+        } else {
+          setText('#score-desc', score >= 70 ? '¡Tu salud financiera es buena! Seguí optimizando.' : 'Podés mejorar. Mirá las recomendaciones.');
+        }
 
         // Categories breakdown
         const cats = {};
@@ -103,12 +107,28 @@
         const topCat = sortedCats[0] || ['Ninguno', 0];
 
         // Recommendations
-        const recs = [
-          { icon: '💡', title: 'Optimizar Suscripciones', text: `Revisá tus suscripciones mensuales. Podés ahorrar cancelando las que no usás.`, priority: 'warning' },
-          { icon: '🛒', title: `${topCat[0]} es tu mayor gasto`, text: `Gastaste ${formatMoney(topCat[1])} en ${topCat[0]}. Considerá buscar alternativas más económicas.`, priority: 'error' },
-          { icon: '💰', title: 'Fondo de Emergencia', text: 'Intentá ahorrar el equivalente a 3-6 meses de gastos para imprevistos.', priority: 'info' },
-          { icon: '📊', title: 'Registrá todos los gastos', text: 'Cuantos más gastos registres, mejores serán las recomendaciones de la IA.', priority: 'success' },
-        ];
+        let recs = [];
+        if (insights && insights.aiRecommendations && insights.aiRecommendations.length > 0) {
+          recs = insights.aiRecommendations.map((text, i) => {
+            const icons = ['💡', '🎯', '💰', '📊', '⚡'];
+            const priorities = ['info', 'warning', 'success', 'primary', 'secondary'];
+            return {
+              icon: icons[i % icons.length],
+              title: 'Consejo IA',
+              text: text,
+              priority: priorities[i % priorities.length]
+            };
+          });
+        } else {
+          // Fallback en caso de que falle la API de Gemini
+          recs = [
+            { icon: '💡', title: 'Optimizar Suscripciones', text: `Revisá tus suscripciones mensuales. Podés ahorrar cancelando las que no usás.`, priority: 'warning' },
+            { icon: '🛒', title: `${topCat[0]} es tu mayor gasto`, text: `Gastaste ${formatMoney(topCat[1])} en ${topCat[0]}. Considerá buscar alternativas más económicas.`, priority: 'error' },
+            { icon: '💰', title: 'Fondo de Emergencia', text: 'Intentá ahorrar el equivalente a 3-6 meses de gastos para imprevistos.', priority: 'info' },
+            { icon: '📊', title: 'Registrá todos los gastos', text: 'Cuantos más gastos registres, mejores serán las recomendaciones de la IA.', priority: 'success' },
+          ];
+        }
+        
         setHTML('#recommendations', recs.map(r => `
           <div style="display:flex;gap:14px;padding:14px;background:var(--bg);border-radius:var(--radius);border-left:3px solid var(--${r.priority})">
             <span style="font-size:1.4rem;flex-shrink:0">${r.icon}</span>
