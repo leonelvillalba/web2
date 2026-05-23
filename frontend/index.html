@@ -287,14 +287,14 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      const FRAME_COUNT = 60;
+      const FRAME_COUNT = 50;
       const images = [];
       let loaded = 0;
       const sequence = { frame: 0 };
 
       for (let i = 1; i <= FRAME_COUNT; i++) {
         const img = new Image();
-        img.src = `assets/sequence/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
+        img.src = `assets/sequence/frame-${String(i).padStart(3, '0')}.jpg`;
         img.onload = () => {
           loaded++;
           if (loaded === 1) {
