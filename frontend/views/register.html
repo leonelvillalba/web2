@@ -70,6 +70,7 @@
 
       <div class="divider">O continúa con</div>
       <div id="google-btn-container" style="margin-top: 16px; display: flex; justify-content: center; width: 100%;"></div>
+      <div style="text-align: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 6px;">Si no se abre, desactiva el bloqueador de pop-ups de tu navegador 🛡️</div>
 
       <div class="auth-footer">
         ¿Ya tienes una cuenta? <a href="login.html">Inicia Sesión</a>
@@ -95,7 +96,8 @@
       }
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleLogin
+        callback: handleGoogleLogin,
+        itp_support: true
       });
       google.accounts.id.renderButton(
         document.getElementById("google-btn-container"),
