@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte — Sanctuary AI</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 420px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .chat-bubble {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+    .chat-bubble.bot {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+    .chat-bubble.user {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+    .chat-bubble-meta {
+      font-size: 0.65rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+    .chat-bubble.user .chat-bubble-meta { color: rgba(255,255,255,0.6); text-align: right; }
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .chat-input {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 18px;
+      font-size: 0.875rem;
+      outline: none;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-send {
+      width: 42px; height: 42px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .chat-send:hover { opacity: 0.85; transform: scale(1.05); }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px; height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    .support-tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .support-tab {
+      padding: 14px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+    .support-tab:hover { color: var(--text); }
+    .support-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .support-panel { display: none; }
+    .support-panel.active { display: block; }
+
+    .quick-question {
+      display: inline-block;
+      padding: 8px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text);
+      margin: 4px;
+    }
+    .quick-question:hover { border-color: var(--accent); color: var(--accent); background: rgba(233,69,96,0.04); }
+
+    .contact-info-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .contact-info-card:hover { border-color: var(--accent); background: rgba(233,69,96,0.03); }
+    .contact-icon {
+      width: 44px; height: 44px;
+      background: rgba(233,69,96,0.1);
+      color: var(--accent);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .advisor-avatar-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .online-dot {
+      width: 10px; height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      border: 2px solid var(--bg-card);
+      position: absolute;
+      bottom: 0; right: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar"></div>
+<div class="main-content">
+      <header class="navbar">
+        <div class="navbar-left"><h2 style="font-weight:700;font-size:1rem">💬 Centro de Soporte</h2></div>
+        <div class="navbar-right">
+          <div class="flex items-center gap-2">
+            <div class="navbar-avatar" id="navbar-avatar">XX</div>
+            <div class="navbar-user-info"><div class="name" id="navbar-name">—</div><div class="plan" id="navbar-plan">—</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content" style="max-width:860px">
+        <div class="page-header">
+          <h1 class="page-title">Centro de Soporte</h1>
+          <p class="page-subtitle">¿Necesitás ayuda? Elegí cómo querés contactarnos.</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="support-tab-bar">
+          <button class="support-tab active" onclick="switchTab('ai', this)">🤖 Asistente IA</button>
+          <button class="support-tab" onclick="switchTab('human', this)">👤 Asesor Humano</button>
+        </div>
+
+        <!-- PANEL: IA CHAT -->
+        <div class="support-panel active" id="panel-ai">
+          <div class="grid-2" style="gap:28px;align-items:start">
+            <div>
+              <div class="card" style="padding:0;overflow:hidden">
+                <!-- Chat header -->
+                <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg-card)">
+                  <div style="width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--secondary));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">🤖</div>
+                  <div>
+                    <div style="font-weight:700;font-size:0.9rem">Sanctuary IA</div>
+                    <div style="font-size:0.72rem;color:var(--success);font-weight:600">● En línea — Responde al instante</div>
+                  </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="chat-messages" id="ai-chat-messages">
+                  <div>
+                    <div class="chat-bubble bot">
+                      ¡Hola! 👋 Soy el asistente IA de <strong>Sanctuary AI</strong>. Estoy aquí para ayudarte con cualquier pregunta sobre la plataforma, tus gastos o tus finanzas. ¿En qué puedo ayudarte hoy?
+                    </div>
+                    <div class="chat-bubble-meta">Sanctuary IA • ahora</div>
+                  </div>
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-row">
+                  <input class="chat-input" id="ai-input" type="text" placeholder="Escribí tu pregunta..." onkeydown="if(event.key==='Enter') sendAIMessage()">
+                  <button class="chat-send" onclick="sendAIMessage()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick questions + info -->
+            <div>
+              <div class="card mb-4">
+                <h3 style="font-weight:700;font-size:0.9rem;margin-bottom:14px">⚡ Preguntas Frecuentes</h3>
+                <div id="quick-questions">
+                  <span class="quick-question" onclick="askQuestion('¿Cómo escaneo un ticket?')">¿Cómo escaneo un ticket?</span>
+                  <span class="quick-question" onclick="askQuestion('¿Cómo agrego un gasto manualmente?')">¿Cómo agrego un gasto?</span>
+                  <span class="quick-question" onclick="askQuestion('¿Qué diferencia hay entre el plan Básico y Plus?')">¿Diferencia entre planes?</span>
+                  <span class="quick-question" onclick="askQuestion('¿Cómo activo el modo oscuro?')">¿Cómo activo el modo oscuro?</span>
+                  <span class="quick-question" onclick="askQuestion('¿Cómo cambio mi presupuesto mensual?')">¿Cómo cambio mi presupuesto?</span>
+                  <span class="quick-question" onclick="askQuestion('¿Qué es el índice de salud financiera?')">¿Qué es la salud financiera?</span>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3 style="font-weight:700;font-size:0.9rem;margin-bottom:14px">ℹ️ Sobre el Asistente IA</h3>
+                <p class="text-sm text-muted" style="line-height:1.6;margin-bottom:12px">Nuestro asistente utiliza inteligencia artificial para responder preguntas sobre la plataforma y consejos financieros generales.</p>
+                <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--success);font-weight:600">
+                  <span>●</span> Disponible 24/7
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);margin-top:6px;font-weight:500">
+                  ⚡ Tiempo de respuesta: inmediato
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: ASESOR HUMANO -->
+        <div class="support-panel" id="panel-human">
+          <div class="grid-2" style="gap:28px;align-items:start">
+            <!-- Contact form -->
+            <div class="card">
+              <h3 style="font-weight:700;margin-bottom:6px">Contactar un Asesor</h3>
+              <p class="text-sm text-muted mb-6">Un asesor financiero certificado te responderá en horario de atención.</p>
+
+              <div id="human-alert" class="alert hidden"></div>
+              <div id="human-success" class="alert alert-success hidden">
+                ✅ Tu mensaje fue enviado correctamente. Un asesor te contactará a la brevedad.
+              </div>
+
+              <form id="human-form">
+                <div class="form-group">
+                  <label class="form-label">Asunto</label>
+                  <select id="h-subject" class="form-input" style="cursor:pointer">
+                    <option value="">— Seleccioná un asunto —</option>
+                    <option value="consulta">Consulta sobre mis gastos</option>
+                    <option value="plan">Información sobre planes</option>
+                    <option value="tecnico">Problema técnico</option>
+                    <option value="facturacion">Facturación o cobros</option>
+                    <option value="estrategia">Estrategia financiera personalizada</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Descripción del problema</label>
+                  <textarea id="h-message" class="form-input" rows="5" placeholder="Describí tu consulta con el mayor detalle posible..." style="resize:vertical;min-height:120px"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Urgencia</label>
+                  <div style="display:flex;gap:10px">
+                    <label style="flex:1;cursor:pointer">
+                      <input type="radio" name="urgency" value="normal" checked style="margin-right:6px">
+                      <span class="text-sm">Normal (24-48hs)</span>
+                    </label>
+                    <label style="flex:1;cursor:pointer">
+                      <input type="radio" name="urgency" value="urgente" style="margin-right:6px">
+                      <span class="text-sm">Urgente (4hs)</span>
+                    </label>
+                  </div>
+                </div>
+                <button type="submit" id="human-btn" class="btn btn-primary w-full" style="justify-content:center">
+                  Enviar mensaje al asesor
+                </button>
+              </form>
+            </div>
+
+            <!-- Advisor info + schedule -->
+            <div>
+              <div class="card mb-4">
+                <h3 style="font-weight:700;font-size:0.9rem;margin-bottom:14px">👥 Nuestros Asesores</h3>
+                <div class="advisor-avatar-card">
+                  <div style="position:relative">
+                    <div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">AC</div>
+                    <span class="online-dot"></span>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;font-size:0.875rem">Alex Campos</div>
+                    <div class="text-xs text-muted">Asesor Financiero Senior</div>
+                    <div style="font-size:0.72rem;color:var(--success);font-weight:600;margin-top:2px">● En línea</div>
+                  </div>
+                </div>
+                <div class="advisor-avatar-card" style="margin-bottom:0">
+                  <div style="position:relative">
+                    <div class="avatar" style="background:linear-gradient(135deg,#10b981,#059669)">SL</div>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;font-size:0.875rem">Sofía López</div>
+                    <div class="text-xs text-muted">Especialista en Ahorro</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;margin-top:2px">⏰ Disponible mañana</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-4">
+                <h3 style="font-weight:700;font-size:0.9rem;margin-bottom:14px">🕐 Horario de Atención</h3>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;justify-content:space-between;font-size:0.82rem">
+                    <span style="font-weight:600">Lunes a Viernes</span>
+                    <span class="text-muted">9:00 — 18:00</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.82rem">
+                    <span style="font-weight:600">Sábados</span>
+                    <span class="text-muted">10:00 — 14:00</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:0.82rem">
+                    <span style="font-weight:600">Domingos</span>
+                    <span class="text-muted">Cerrado</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="contact-info-card">
+                <div class="contact-icon">📧</div>
+                <div>
+                  <div style="font-weight:700;font-size:0.875rem">Email</div>
+                  <div class="text-sm text-muted">soporte@sanctuary.ai</div>
+                </div>
+              </div>
+              <div class="contact-info-card">
+                <div class="contact-icon">📞</div>
+                <div>
+                  <div style="font-weight:700;font-size:0.875rem">Teléfono</div>
+                  <div class="text-sm text-muted">+54 11 4000-0000</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/components/sidebar.js"></script>
+  <script src="../js/modules/config.js"></script>
+  <script src="../js/modules/api.js"></script>
+<script src="../js/modules/auth.js"></script>
+  <script src="../js/modules/ui.js"></script>
+  <script src="../js/modules/theme.js"></script>
+  <script src="../js/modules/navbar.js"></script>
+  <script src="../js/modules/notifications.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderSidebar('soporte');
+    renderNavbarUser();
+    applyRoleUI();
+
+    const user = auth.getUser();
+
+    // ─── TABS ───
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.support-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.support-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    // ─── QUICK QUESTIONS ───
+    function askQuestion(q) {
+      document.getElementById('ai-input').value = q;
+      sendAIMessage();
+    }
+
+    // ─── CHAT CON IA REAL ───
+    const chatHistory = [];
+
+    function addMessage(text, type, sender) {
+      const container = document.getElementById('ai-chat-messages');
+      const now = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const div = document.createElement('div');
+      const htmlText = text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      div.innerHTML = '<div class="chat-bubble ' + type + '">' + htmlText + '</div>'
+        + '<div class="chat-bubble-meta">' + sender + ' \u2022 ' + now + '</div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function addTyping() {
+      const container = document.getElementById('ai-chat-messages');
+      const div = document.createElement('div');
+      div.id = 'typing';
+      div.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+
+    async function sendAIMessage() {
+      const input = document.getElementById('ai-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = '';
+      input.disabled = true;
+
+      addMessage(msg, 'user', user.firstName || 'Vos');
+      chatHistory.push({ role: 'user', text: msg });
+      addTyping();
+
+      try {
+        const res = await fetch(API_BASE + '/tickets/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, history: chatHistory.slice(-6) }),
+        });
+
+        removeTyping();
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          const reply = data.data && data.data.reply ? data.data.reply : 'No pude procesar tu mensaje.';
+          addMessage(reply, 'bot', 'Sanctuary IA');
+          chatHistory.push({ role: 'bot', text: reply });
+        } else {
+          // Mostrar el error real del servidor si existe
+          const errMsg = data.message || 'Hubo un error al procesar tu consulta.';
+          console.error('Chat error:', data);
+          addMessage('\u26a0\ufe0f ' + errMsg, 'bot', 'Sanctuary IA');
+        }
+      } catch (err) {
+        removeTyping();
+        addMessage('\u26a0\ufe0f No se pudo conectar con el servidor. Verific\u00e1 tu conexi\u00f3n.', 'bot', 'Sanctuary IA');
+      }
+
+      input.disabled = false;
+      input.focus();
+    }
+
+    // ─── HUMAN FORM ───
+    document.getElementById('human-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('human-btn');
+      var subject = document.getElementById('h-subject').value;
+      var message = document.getElementById('h-message').value.trim();
+
+      hideAlert('#human-alert');
+      if (!subject) { showAlert('#human-alert', 'Seleccion\u00e1 un asunto'); return; }
+      if (!message || message.length < 10) { showAlert('#human-alert', 'Describ\u00ed tu problema con m\u00e1s detalle (m\u00ednimo 10 caracteres)'); return; }
+
+      setLoading(btn, true);
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      setLoading(btn, false);
+
+      document.getElementById('human-form').reset();
+      show('#human-success');
+      setTimeout(function() { hide('#human-success'); }, 5000);
+    });
+  </script>
+</body>
+</html>

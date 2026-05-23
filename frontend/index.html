@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sanctuary AI — Plataforma inteligente de gestión de gastos con IA, OCR y asesoría financiera personalizada.">
+  <title>Sanctuary AI — Tu Santuario Financiero Inteligente</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+</head>
+<body>
+
+  <!-- ROBOT IA — Canvas fijo detrás de toda la página -->
+  <canvas id="robot-sequence"></canvas>
+  <div id="sequence-overlay"></div>
+
+  <!-- NAVBAR -->
+  <nav class="landing-nav">
+    <div class="landing-nav-inner">
+      <div class="logo">
+        <div class="logo-icon">S</div>
+        <span>Sanctuary AI</span>
+      </div>
+      <div class="nav-links">
+        <a class="nav-link" href="#producto">Producto</a>
+        <a class="nav-link" href="#inteligencia">Inteligencia</a>
+        <a class="nav-link" href="#precios">Precios</a>
+      </div>
+      <div class="nav-actions">
+        <a href="views/login.html" class="btn btn-ghost btn-sm">Iniciar Sesión</a>
+        <a href="views/register.html" class="btn btn-primary btn-sm">Comenzar</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="slide-up">
+      <div class="hero-badge">🛡️ Inteligencia de Grado Institucional</div>
+      <h1 class="hero-title">
+        Tu Santuario<br>Financiero<br><span>Inteligente.</span>
+      </h1>
+      <p class="hero-desc">
+        Domina tu futuro económico con IA diseñada para la calma.
+        Análisis profundo, captura instantánea y asesoría personalizada
+        en una experiencia editorial minimalista.
+      </p>
+      <div class="hero-actions">
+        <a href="views/register.html" class="btn btn-primary btn-lg">Comenzar ahora →</a>
+        <a href="#producto" class="btn btn-outline btn-lg">▶ Ver Demo</a>
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="hero-login-card slide-up" style="animation-delay: 0.15s">
+      <h2 class="hero-login-title">Accede a tu cuenta</h2>
+      <p class="hero-login-sub">Continúa tu viaje hacia la libertad financiera.</p>
+
+      <div id="hero-alert" class="alert alert-error hidden"></div>
+
+      <form id="hero-login-form">
+        <div class="form-group">
+          <label class="form-label">Correo Electrónico</label>
+          <input type="email" id="hero-email" class="form-input" placeholder="nombre@ejemplo.com" required>
+        </div>
+        <div class="form-group">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <label class="form-label" style="margin-bottom:0">Contraseña</label>
+            <span style="font-size:0.72rem;color:var(--accent);font-weight:600;cursor:pointer">¿Olvidaste tu contraseña?</span>
+          </div>
+          <input type="password" id="hero-password" class="form-input" placeholder="••••••••" required style="margin-top:8px">
+        </div>
+        <button type="submit" id="hero-login-btn" class="btn btn-primary w-full btn-lg" style="justify-content:center">
+          Entrar al Santuario
+        </button>
+      </form>
+
+      <div class="divider">O continúa con</div>
+      <div id="google-btn-container" style="margin-top: 16px; display: flex; justify-content: center; width: 100%;"></div>
+
+      <div class="auth-footer" style="margin-top:20px">
+        ¿No tienes una cuenta? <a href="views/register.html">Regístrate</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTO -->
+  <section id="producto" class="features-section">
+    <div class="features-inner">
+      <div class="section-header">
+        <div class="section-badge">⚡ Funcionalidades</div>
+        <h2 class="section-title">Tecnología que respira</h2>
+        <p class="section-desc">Todo lo que necesitás para tomar el control de tus finanzas, en una sola plataforma.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📷</div>
+          <h3 class="feature-title">Escaneo de Tickets</h3>
+          <p class="feature-desc">Subí una foto de tu ticket y nuestra IA extrae automáticamente el monto, fecha y comercio. Sin cargar datos a mano.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 class="feature-title">Estadísticas en Tiempo Real</h3>
+          <p class="feature-desc">Visualizá en qué gastás tu dinero con gráficos interactivos, categorías inteligentes y tendencias mensuales.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3 class="feature-title">Recomendaciones con IA</h3>
+          <p class="feature-desc">Recibí sugerencias personalizadas para mejorar tus finanzas basadas en tus patrones de consumo.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3 class="feature-title">Metas de Ahorro</h3>
+          <p class="feature-desc">Definí objetivos como vacaciones o fondo de emergencia, y seguí tu progreso con claridad.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3 class="feature-title">Alertas Inteligentes</h3>
+          <p class="feature-desc">Te avisamos cuando te estás pasando del presupuesto o cuando detectamos un gasto inusual.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3 class="feature-title">Acceso desde Cualquier Lugar</h3>
+          <p class="feature-desc">Plataforma 100% web. Accedé desde tu computadora, tablet o celular sin instalar nada.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTELIGENCIA -->
+  <section id="inteligencia" style="padding:80px 0">
+    <div style="max-width:1200px;margin:0 auto;padding:0 32px">
+      <div class="section-header">
+        <div class="section-badge" style="background:rgba(233,69,96,0.08);color:var(--accent);border-color:rgba(233,69,96,0.2)">✨ Inteligencia Artificial</div>
+        <h2 class="section-title">IA que entiende <span style="color:var(--accent)">tus finanzas</span></h2>
+        <p class="section-desc">Una plataforma inteligente para controlar gastos, analizar hábitos y ayudarte a ahorrar.</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:40px">
+        <div class="card">
+          <div style="width:40px;height:40px;background:var(--primary);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:16px">1</div>
+          <h3 style="font-weight:700;margin-bottom:8px">Registrá tus gastos</h3>
+          <p class="text-sm text-muted" style="line-height:1.6">Cargá manualmente o subí una foto de tu ticket. Nuestra IA lee el recibo con OCR y extrae monto, fecha y comercio.</p>
+          <div style="margin-top:16px;background:var(--bg);padding:12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px">
+            <span>📸</span>
+            <p class="text-xs text-muted"><strong style="color:var(--text)">OCR Inteligente:</strong> Reconocimiento óptico profesional.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div style="width:40px;height:40px;background:var(--accent);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:16px">2</div>
+          <h3 style="font-weight:700;margin-bottom:8px">Analizá tus patrones</h3>
+          <p class="text-sm text-muted" style="line-height:1.6">Visualizá en qué gastás con gráficos interactivos. La IA detecta hábitos de consumo y te muestra tendencias.</p>
+          <div style="margin-top:16px;background:var(--bg);padding:12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px">
+            <span>📈</span>
+            <p class="text-xs text-muted"><strong style="color:var(--text)">Análisis Predictivo:</strong> Anticipá gastos futuros.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div style="width:40px;height:40px;background:var(--primary);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:16px">3</div>
+          <h3 style="font-weight:700;margin-bottom:8px">Recibí recomendaciones</h3>
+          <p class="text-sm text-muted" style="line-height:1.6">Consejos personalizados para mejorar tus finanzas. Desde optimizar suscripciones hasta reasignar ahorros.</p>
+          <div style="margin-top:16px;background:var(--bg);padding:12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px">
+            <span>👥</span>
+            <p class="text-xs text-muted"><strong style="color:var(--text)">Asesor IA:</strong> Analizando tu cartera 24/7.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Banner -->
+      <div class="insight-card" style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center">
+        <div>
+          <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px">Portal del Asesor Financiero</h3>
+          <p style="color:rgba(255,255,255,0.75);margin-bottom:20px;line-height:1.7;font-size:0.9rem">
+            Un rol especial para profesionales: analizá gastos de clientes, detectá hábitos, creá estrategias y enviá recomendaciones directamente.
+          </p>
+          <a href="views/register.html" class="btn" style="background:#fff;color:#0f0f1a;font-weight:700">Explorar como Asesor →</a>
+        </div>
+        <div class="grid-2" style="gap:12px">
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px">
+            <div style="font-size:1.5rem;font-weight:900;color:#fff">94.2%</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);margin-top:4px">Salud Financiera</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px">
+            <div style="font-size:1.5rem;font-weight:900;color:#fff">$1,420</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);margin-top:4px">Ahorro Potencial</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px">
+            <div style="font-size:1.5rem;font-weight:900;color:#fff">3</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);margin-top:4px">Optimizaciones / Semana</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px">
+            <div style="font-size:1.5rem;font-weight:900;color:#fff">24/7</div>
+            <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.7);margin-top:4px">Monitoreo IA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRECIOS -->
+  <section id="precios" class="features-section">
+    <div style="max-width:1200px;margin:0 auto;padding:0 32px">
+      <div class="section-header">
+        <div class="section-badge">⭐ Planes</div>
+        <h2 class="section-title">Elegí tu plan</h2>
+        <p class="section-desc">Comenzá gratis con el Básico o desbloqueá todo el potencial con Plus.</p>
+      </div>
+      <div class="pricing-grid">
+        <!-- Básico -->
+        <div class="pricing-card">
+          <div class="pricing-name">Básico</div>
+          <p class="text-sm text-muted">Ideal para comenzar a organizar tus finanzas.</p>
+          <div class="pricing-price">Gratis</div>
+          <p class="pricing-period">Para siempre, sin tarjeta</p>
+          <ul class="pricing-features">
+            <li class="included"><span class="check">✓</span> Registro manual de gastos</li>
+            <li class="included"><span class="check">✓</span> Hasta 3 escaneos por día</li>
+            <li class="included"><span class="check">✓</span> Estadísticas básicas</li>
+            <li class="included"><span class="check">✓</span> Hasta 3 metas de ahorro</li>
+            <li class="excluded"><span class="cross">✕</span> Escaneos ilimitados</li>
+            <li class="excluded"><span class="cross">✕</span> Asistente IA personalizado</li>
+            <li class="excluded"><span class="cross">✕</span> Exportación de informes PDF</li>
+          </ul>
+          <a href="views/register.html" class="btn btn-outline w-full" style="justify-content:center;color:#fff;border-color:rgba(255,255,255,0.3)">Comenzar Gratis</a>
+        </div>
+        <!-- Plus -->
+        <div class="pricing-card featured">
+          <div style="position:absolute;top:20px;right:20px" class="badge badge-premium">Popular</div>
+          <div class="pricing-name">Plus</div>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.875rem">Todo el poder de la IA sin límites.</p>
+          <div class="pricing-price">$4.99</div>
+          <p class="pricing-period">/ mes — Cancelá cuando quieras</p>
+          <ul class="pricing-features">
+            <li class="included"><span class="check">✓</span> Registro manual de gastos</li>
+            <li class="included"><span class="check">✓</span> Escaneos ilimitados</li>
+            <li class="included"><span class="check">✓</span> Estadísticas avanzadas</li>
+            <li class="included"><span class="check">✓</span> Metas ilimitadas</li>
+            <li class="included"><span class="check">✓</span> Asistente IA personalizado</li>
+            <li class="included"><span class="check">✓</span> Exportación PDF</li>
+            <li class="included"><span class="check">✓</span> Soporte prioritario</li>
+          </ul>
+          <a href="views/register.html" class="btn w-full" style="justify-content:center;background:#fff;color:#0f0f1a;font-weight:700">Comenzar con Plus</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section style="padding:80px 0">
+    <div style="max-width:700px;margin:0 auto;text-align:center;padding:0 32px">
+      <h2 class="section-title">Empezá a controlar tus finanzas hoy</h2>
+      <p class="section-desc" style="max-width:100%">Unite a personas que ya usan Sanctuary AI para entender sus gastos, ahorrar más y vivir con tranquilidad financiera.</p>
+      <div style="display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap">
+        <a href="views/register.html" class="btn btn-primary btn-lg">Crear cuenta gratis →</a>
+        <a href="#precios" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.25)">Ver planes</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding:32px">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 32px">
+      <div class="logo">
+        <div class="logo-icon" style="width:28px;height:28px;font-size:0.8rem">S</div>
+        <span style="font-size:0.95rem">Sanctuary AI</span>
+      </div>
+      <p style="font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">
+        © 2026 Sanctuary AI. Finanzas Inteligentes Seguras.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/modules/config.js"></script>
+  <script src="js/modules/api.js"></script>
+  <script src="js/modules/auth.js"></script>
+  <script src="js/modules/ui.js"></script>
+  <script src="js/modules/theme.js"></script>
+  <script src="js/modules/navbar.js"></script>
+  <script src="js/modules/notifications.js"></script>
+  <script>
+    // ─── ROBOT IA — Fondo animado con scroll de toda la página ───
+    (function initSequence() {
+      const canvas = document.getElementById('robot-sequence');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const FRAME_COUNT = 60;
+      const images = [];
+      let loaded = 0;
+      const sequence = { frame: 0 };
+
+      for (let i = 1; i <= FRAME_COUNT; i++) {
+        const img = new Image();
+        img.src = `assets/sequence/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
+        img.onload = () => {
+          loaded++;
+          if (loaded === 1) {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            render();
+          }
+          if (loaded === FRAME_COUNT) initGSAP();
+        };
+        images.push(img);
+      }
+
+      function render() {
+        if (!images[sequence.frame]) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(images[sequence.frame], 0, 0);
+      }
+
+      function initGSAP() {
+        gsap.registerPlugin(ScrollTrigger);
+        // El trigger es el body completo → la animación dura todo el scroll de la página
+        gsap.to(sequence, {
+          frame: FRAME_COUNT - 1,
+          snap: 'frame',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: 'body',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+          },
+          onUpdate: render,
+        });
+      }
+    })();
+  </script>
+  <script>
+    // Redirect if already logged in
+    if (auth.isLoggedIn()) window.location.href = 'views/dashboard.html';
+
+    // Inicializar Google Sign-In oficial
+    function initGoogleSignIn() {
+      if (typeof google === 'undefined') {
+        setTimeout(initGoogleSignIn, 100);
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleLogin
+      });
+      google.accounts.id.renderButton(
+        document.getElementById("google-btn-container"),
+        { theme: "filled_blue", size: "large", width: 380, shape: "rectangular" }
+      );
+    }
+
+    async function handleGoogleLogin(response) {
+      try {
+        const data = await auth.loginWithGoogleToken(response.credential);
+        if (data.user) {
+          window.location.href = 'views/dashboard.html';
+        } else {
+          showAlert('#hero-alert', data.error || 'Error al iniciar sesión con Google');
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('#hero-alert', 'Error de red o servidor al conectar con Google');
+      }
+    }
+
+    // Ejecutar al cargar la página
+    if (document.readyState === 'complete') {
+      initGoogleSignIn();
+    } else {
+      window.addEventListener('load', initGoogleSignIn);
+    }
+
+    // Hero login form
+    document.getElementById('hero-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('hero-email').value.trim();
+      const pw = document.getElementById('hero-password').value;
+      const btn = document.getElementById('hero-login-btn');
+      
+      hideAlert('#hero-alert');
+
+      if (!email) { showAlert('#hero-alert', 'Ingresá tu correo electrónico'); return; }
+      if (!pw) { showAlert('#hero-alert', 'Ingresá tu contraseña'); return; }
+      if (!email.includes('@')) { showAlert('#hero-alert', 'El formato del email no es válido'); return; }
+      if (pw.length < 4) { showAlert('#hero-alert', 'La contraseña es muy corta'); return; }
+
+      setLoading(btn, true);
+      try {
+        await auth.login(email, pw);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showAlert('#hero-alert', err.message || 'Email o contraseña incorrectos');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>

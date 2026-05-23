@@ -1,0 +1,48 @@
+/* =====================================================================
+   SANCTUARY AI — Hoja de Estilos Principal
+   =====================================================================
+   Plataforma Inteligente de Gestión de Gastos
+   Proyecto de Ingeniería Web II
+   
+   Este archivo importa todos los módulos CSS del proyecto.
+   Cada módulo contiene estilos específicos para facilitar el
+   mantenimiento y la legibilidad del código.
+
+   ESTRUCTURA DE ARCHIVOS:
+   ─────────────────────────────────────────────────────────────────────
+   base.css         → Fuentes, variables, reset, utilidades, animaciones
+   components.css   → Botones, cards, formularios, alertas, badges,
+                      tablas, tabs, modales, dropdowns, avatares, etc.
+   layout.css       → Sidebar, navbar, notificaciones, estructura de
+                      páginas, stats grid
+   landing.css      → Página de inicio (hero, features, pricing)
+   auth.css         → Login y registro
+   pages.css        → Dashboard, insights, perfil (theme settings)
+   responsive.css   → Media queries para diseño responsive
+   dark-mode.css    → Overrides del modo oscuro
+   ─────────────────────────────────────────────────────────────────────
+   ===================================================================== */
+
+/* 1. Base: variables, reset, utilidades */
+@import url('base.css');
+
+/* 2. Componentes reutilizables */
+@import url('components.css');
+
+/* 3. Layout: sidebar, navbar, estructura */
+@import url('layout.css');
+
+/* 4. Landing page */
+@import url('landing.css');
+
+/* 5. Páginas de autenticación */
+@import url('auth.css');
+
+/* 6. Páginas internas (dashboard, perfil, etc.) */
+@import url('pages.css');
+
+/* 7. Responsive */
+@import url('responsive.css');
+
+/* 8. Dark mode */
+@import url('dark-mode.css');

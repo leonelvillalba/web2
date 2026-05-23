@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal del Asesor — Sanctuary AI</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="sidebar"></div>
+<div class="main-content">
+      <header class="navbar">
+        <div class="navbar-left"><h2 style="font-weight:700;font-size:1rem">👥 Portal del Asesor</h2></div>
+        <div class="navbar-right">
+          <div class="flex items-center gap-2">
+            <div class="navbar-avatar" id="navbar-avatar">XX</div>
+            <div class="navbar-user-info"><div class="name" id="navbar-name">—</div><div class="plan" id="navbar-plan">—</div></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div class="page-header">
+          <h1 class="page-title">Portal del Asesor Financiero</h1>
+          <p class="page-subtitle">Visualizá y analizá los datos financieros de tus clientes.</p>
+        </div>
+
+        <div id="advisor-access" class="hidden">
+          <!-- Advisor stats -->
+          <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:28px">
+            <div class="stat-card"><div class="stat-icon purple">👥</div><div class="stat-label">Clientes</div><div class="stat-value" id="adv-clients">—</div></div>
+            <div class="stat-card"><div class="stat-icon accent">💰</div><div class="stat-label">Total Gastos</div><div class="stat-value" id="adv-total">—</div></div>
+            <div class="stat-card"><div class="stat-icon success">📈</div><div class="stat-label">Total Ingresos</div><div class="stat-value" id="adv-income">—</div></div>
+            <div class="stat-card"><div class="stat-icon blue">📊</div><div class="stat-label">Promedio Gasto</div><div class="stat-value" id="adv-avg">—</div></div>
+          </div>
+
+          <!-- Clients table -->
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+              <h3 style="font-weight:700">Clientes Asignados</h3>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Cliente</th><th>Email</th><th>Plan</th><th>Gastos</th><th>Ingresos</th><th>Transacciones</th><!-- <th>Salud</th> --></tr></thead>
+                <tbody id="clients-table">
+                  <tr><td colspan="5" style="text-align:center;padding:40px"><span class="spinner spinner-dark"></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="no-advisor-access">
+          <div class="card" style="text-align:center;padding:60px 40px">
+            <div style="font-size:3rem;margin-bottom:16px">🔒</div>
+            <h2 style="font-weight:800;margin-bottom:8px">Acceso Exclusivo para Asesores</h2>
+            <p class="text-muted" style="max-width:400px;margin:0 auto 24px">
+              Este módulo está diseñado para asesores financieros certificados. 
+              Contactá al administrador para obtener el rol de asesor.
+            </p>
+            <p class="text-sm" style="color:var(--accent);font-weight:600">
+              Iniciá sesión con una cuenta de asesor para acceder.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/components/sidebar.js"></script>
+  <script src="../js/modules/config.js"></script>
+  <script src="../js/modules/api.js"></script>
+  <script src="../js/modules/auth.js"></script>
+  <script src="../js/modules/ui.js"></script>
+  <script src="../js/modules/theme.js"></script>
+  <script src="../js/modules/navbar.js"></script>
+  <script src="../js/modules/notifications.js"></script>
+  <script>
+    if (!auth.requireAuth()) throw 'No auth';
+    renderSidebar('asesor');
+    renderNavbarUser();
+    const user = auth.getUser();
+
+    // Check if user is advisor
+    if (user.role === 'advisor') {
+      show('#advisor-access');
+      hide('#no-advisor-access');
+      loadClients();
+    } else {
+      hide('#advisor-access');
+      show('#no-advisor-access');
+    }
+
+    async function loadClients() {
+      try {
+        const clients = await api.get('/advisor/clients');
+        const table = document.getElementById('clients-table');
+        
+        let totalGastos = 0;
+        let totalIngresos = 0;
+        const rows = clients.map(c => {
+          const gastos = Number(c.totalExpenses) || 0;
+          const ingresos = Number(c.totalIncome) || 0;
+          const txns = c.transactionCount || 0;
+          const score = c.healthScore || 50;
+          totalGastos += gastos;
+          totalIngresos += ingresos;
+          const initials = (c.firstName?.[0]||'?') + (c.lastName?.[0]||'?');
+          const planLabel = c.plan === 'plus'
+            ? '<span class="badge badge-premium">👑 Plus</span>'
+            : '<span class="badge badge-basic">📋 Básico</span>';
+          return `
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar avatar-sm">${initials}</div>
+                <div>
+                  <div style="font-weight:700">${c.firstName} ${c.lastName}</div>
+                  <div class="text-xs text-muted">${c.location || 'Sin ubicación'}</div>
+                </div>
+              </div></td>
+              <td class="text-muted">${c.email}</td>
+              <td>${planLabel}</td>
+              <td style="font-weight:700;color:var(--error)">${formatMoney(gastos)}</td>
+              <td style="font-weight:700;color:var(--success)">${formatMoney(ingresos)}</td>
+              <td style="text-align:center">${txns}</td>
+              <!-- <td><span class="badge ${score >= 60 ? 'badge-success' : score >= 25 ? 'badge-warning' : 'badge-error'}">${score >= 60 ? '✓' : score >= 25 ? '⚠' : '✕'} ${score}%</span></td> -->
+            </tr>
+          `;
+        });
+
+        table.innerHTML = rows.join('') || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No hay clientes registrados</td></tr>';
+
+        setText('#adv-clients', clients.length);
+        setText('#adv-total', formatMoney(totalGastos));
+        setText('#adv-income', formatMoney(totalIngresos));
+        setText('#adv-avg', formatMoney(clients.length > 0 ? totalGastos / clients.length : 0));
+      } catch (err) {
+        console.error(err);
+        toast('Error al cargar clientes', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

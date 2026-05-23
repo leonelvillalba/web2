@@ -1,0 +1,32 @@
+/* =====================================================================
+   SANCTUARY AI — Responsive (Media Queries)
+   =====================================================================
+   Breakpoints:
+   - 1024px: Tablets landscape
+   - 768px:  Tablets portrait / móvil grande
+   - 480px:  Móvil pequeño
+   ===================================================================== */
+
+@media (max-width: 1024px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero { grid-template-columns: 1fr; gap: 40px; }
+}
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-240px); }
+  .sidebar.open { transform: translateX(0); }
+  .navbar { left: 0; }
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 2.2rem; }
+  .page-content { padding: 20px; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; }
+  .btn-lg { width: 100%; justify-content: center; }
+}

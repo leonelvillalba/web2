@@ -1,0 +1,90 @@
+/* =====================================================================
+   SANCTUARY AI — Páginas Internas
+   =====================================================================
+   Contiene: Dashboard (Insight Card), Perfil (Theme Toggle, Color
+   Swatches, Settings Card)
+   ===================================================================== */
+
+
+/* ─── Dashboard — Insight Card (IA del Santuario) ─── */
+
+.insight-card {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent2) 100%);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+.insight-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+.insight-text { font-size: 0.875rem; line-height: 1.7; color: rgba(255,255,255,0.8); }
+
+
+/* ─── Perfil — Theme Toggle Switch ─── */
+
+.theme-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.theme-switch-track {
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 100px;
+  position: relative;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+.theme-switch-track.active { background: var(--accent); }
+.theme-switch-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.theme-switch-track.active .theme-switch-thumb { transform: translateX(22px); }
+.theme-switch-label { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+
+
+/* ─── Perfil — Color Swatches ─── */
+
+.color-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.color-swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: var(--text); box-shadow: 0 0 0 3px var(--bg-card); }
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+
+/* ─── Perfil — Settings Card ─── */
+
+.settings-section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-section:last-child { border-bottom: none; }
+.settings-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.settings-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; }
