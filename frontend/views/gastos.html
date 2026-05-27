@@ -199,7 +199,8 @@
       let filtered = currentFilter === 'all' ? allExpenses : allExpenses.filter(e => e.type === currentFilter);
 
       // Search filter
-      const search = document.getElementById('search-input').value.toLowerCase();
+      const searchInput = document.getElementById('search-input');
+      const search = searchInput ? searchInput.value.toLowerCase() : '';
       if (search) filtered = filtered.filter(e => e.merchant.toLowerCase().includes(search) || e.category.toLowerCase().includes(search));
 
       if (filtered.length === 0) {
@@ -242,7 +243,10 @@
       renderExpenses();
     }
 
-    document.getElementById('search-input').addEventListener('input', renderExpenses);
+    const searchInputEl = document.getElementById('search-input');
+    if (searchInputEl) {
+      searchInputEl.addEventListener('input', renderExpenses);
+    }
 
     // Toggle categoría según tipo
     function toggleCategoryField() {
