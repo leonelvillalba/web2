@@ -360,6 +360,9 @@
 
         const response = await fetch(`${API_BASE}/tickets/upload`, {
           method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('sanctuary_token')}`
+          },
           body: formData,
         });
 
