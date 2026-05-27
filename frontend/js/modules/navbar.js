@@ -39,15 +39,21 @@ const plans = {
   },
   // OCR scan counter (3/day for basic)
   getScanCount() {
+    const user = auth.getUser();
+    if (!user) return 0;
+    const key = `sanctuary_scans_${user.id}`;
     const today = new Date().toISOString().split('T')[0];
-    const data = JSON.parse(localStorage.getItem('sanctuary_scans') || '{}');
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
     return data[today] || 0;
   },
   addScan() {
+    const user = auth.getUser();
+    if (!user) return 0;
+    const key = `sanctuary_scans_${user.id}`;
     const today = new Date().toISOString().split('T')[0];
-    const data = JSON.parse(localStorage.getItem('sanctuary_scans') || '{}');
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
     data[today] = (data[today] || 0) + 1;
-    localStorage.setItem('sanctuary_scans', JSON.stringify(data));
+    localStorage.setItem(key, JSON.stringify(data));
     return data[today];
   },
   canScan() {
