@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from 'typeorm';
 import { Expense } from './expense.entity';
+import { SavingsGoal } from './savings-goal.entity';
 
 @Entity('users')
 export class User {
@@ -50,4 +51,7 @@ export class User {
 
   @OneToMany(() => Expense, (expense) => expense.user)
   expenses: Expense[];
+
+  @OneToMany(() => SavingsGoal, (goal) => goal.user)
+  savingsGoals: SavingsGoal[];
 }

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Expense } from './entities/expense.entity';
+import { SavingsGoal } from './entities/savings-goal.entity';
 import { AuthModule } from './auth/auth.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { DashboardModule } from './dashboard/dashboard.module';
@@ -10,6 +11,7 @@ import { InsightsModule } from './insights/insights.module';
 import { AdvisorModule } from './advisor/advisor.module';
 import { SeedModule } from './seed/seed.module';
 import { TicketsModule } from './tickets/tickets.module';
+import { GoalsModule } from './goals/goals.module';
 
 @Module({
   imports: [
@@ -17,7 +19,7 @@ import { TicketsModule } from './tickets/tickets.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [User, Expense],
+      entities: [User, Expense, SavingsGoal],
       synchronize: true, // Auto-crea tablas (solo desarrollo)
       ssl: {
         rejectUnauthorized: false, // Necesario para Supabase
@@ -30,6 +32,7 @@ import { TicketsModule } from './tickets/tickets.module';
     AdvisorModule,
     SeedModule,
     TicketsModule,
+    GoalsModule,
   ],
 })
 export class AppModule {}

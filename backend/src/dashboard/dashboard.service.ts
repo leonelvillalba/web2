@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Expense } from '../entities/expense.entity';
+import { SavingsGoal } from '../entities/savings-goal.entity';
 
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectRepository(User) private usersRepo: Repository<User>,
     @InjectRepository(Expense) private expensesRepo: Repository<Expense>,
+    @InjectRepository(SavingsGoal) private goalsRepo: Repository<SavingsGoal>,
   ) {}
 
   async getDashboard(userId: number) {
@@ -50,22 +52,24 @@ export class DashboardService {
       type: e.type,
     }));
 
+    // Obtener metas de ahorro reales
+    const savingsGoals = await this.goalsRepo.find({
+      where: { userId },
+      order: { createdAt: 'ASC' },
+    });
+
     return {
       userName: user.firstName,
       balance: 142500,
       monthlySpending,
       budget: Number(user.budget) || 4200,
-      savingsGoals: user.plan === 'plus' ? [
-        { id: 1, name: 'Vacaciones de Verano', target: 8000, current: 6000, color: '#006c47' },
-        { id: 2, name: 'Fondo de Emergencia', target: 20000, current: 8400, color: '#001736' },
-        { id: 3, name: 'Auto Nuevo', target: 55000, current: 6600, color: '#00b4d8' },
-        { id: 4, name: 'Inversión Cripto', target: 10000, current: 2000, color: '#7c3aed' },
-        { id: 5, name: 'Renovar PC', target: 15000, current: 15000, color: '#dc2626' },
-      ] : [
-        { id: 1, name: 'Vacaciones de Verano', target: 8000, current: 6000, color: '#006c47' },
-        { id: 2, name: 'Fondo de Emergencia', target: 20000, current: 8400, color: '#001736' },
-        { id: 3, name: 'Auto Nuevo', target: 55000, current: 6600, color: '#00b4d8' },
-      ],
+      savingsGoals: savingsGoals.map(g => ({
+        id: g.id,
+        name: g.name,
+        target: Number(g.target),
+        current: Number(g.current),
+        color: g.color,
+      })),
       recentActivity,
       spendingDistribution: spendingDistribution.length > 0
         ? spendingDistribution

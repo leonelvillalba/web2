@@ -102,8 +102,7 @@
         <div class="card mb-6">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
             <h3 style="font-weight:700;font-size:1rem">Metas de Ahorro</h3>
-            <button class="btn btn-sm btn-ghost plus-only" style="color:var(--accent)">+ Nueva Meta</button>
-            <button class="btn btn-sm btn-ghost basic-limit" style="color:var(--text-muted)" onclick="plans.showUpgradePrompt('default')">⭐ Plus: Metas Ilimitadas</button>
+            <button class="btn btn-sm btn-accent" id="add-goal-btn">+ Nueva Meta</button>
           </div>
           <div id="savings-goals" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px">
             <div style="padding:20px;text-align:center;color:var(--text-muted)"><span class="spinner spinner-dark"></span></div>
@@ -148,6 +147,45 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- GOAL MODAL -->
+  <div class="modal-overlay hidden" id="goal-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-goal-title">Nueva Meta de Ahorro</h3>
+        <button class="modal-close" onclick="closeModal('goal-modal')">×</button>
+      </div>
+      <form id="goal-form">
+        <input type="hidden" id="goal-id" value="">
+        <div class="form-group mb-4">
+          <label class="form-label" for="goal-name">Nombre de la Meta</label>
+          <input type="text" id="goal-name" class="form-control" required placeholder="Ej. Comprar laptop, Fondo de emergencia...">
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label" for="goal-target">Monto Objetivo</label>
+          <input type="number" id="goal-target" class="form-control" required min="1" placeholder="Ej. 15000">
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label" for="goal-current">Monto Ahorrado Actual</label>
+          <input type="number" id="goal-current" class="form-control" min="0" value="0" placeholder="Ej. 2000">
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label" for="goal-color">Color de barra de progreso</label>
+          <select id="goal-color" class="form-control">
+            <option value="#006c47" style="color:#006c47; font-weight: bold;">🟢 Verde Bosque</option>
+            <option value="#00b4d8" style="color:#00b4d8; font-weight: bold;">🔵 Celeste Claro</option>
+            <option value="#7c3aed" style="color:#7c3aed; font-weight: bold;">🟣 Violeta</option>
+            <option value="#dc2626" style="color:#dc2626; font-weight: bold;">🔴 Rojo</option>
+            <option value="#001736" style="color:#001736; font-weight: bold;">⚫ Azul Marino Oscuro</option>
+          </select>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('goal-modal')">Cancelar</button>
+          <button type="submit" class="btn btn-accent btn-sm" id="goal-submit-btn">Guardar</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -221,12 +259,17 @@
 
         // Savings Goals
         const goalsEl = document.getElementById('savings-goals');
-        if (dashData.savingsGoals && dashData.savingsGoals.length > 0) {
-          goalsEl.innerHTML = dashData.savingsGoals.map(g => {
+        window.currentGoals = dashData.savingsGoals || [];
+        if (window.currentGoals.length > 0) {
+          goalsEl.innerHTML = window.currentGoals.map(g => {
             const progressPct = Math.min(100, Math.round((g.current / g.target) * 100));
             return `
-              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:rgba(255,255,255,0.01)">
-                <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:rgba(255,255,255,0.01);position:relative">
+                <div style="position:absolute;top:10px;right:10px;display:flex;gap:4px">
+                  <button class="btn btn-xs" onclick="editGoal(${g.id})" style="padding:2px 4px;background:transparent;border:none;cursor:pointer;font-size:0.8rem" title="Editar">✏️</button>
+                  <button class="btn btn-xs" onclick="deleteGoal(${g.id})" style="padding:2px 4px;background:transparent;border:none;cursor:pointer;font-size:0.8rem" title="Eliminar">🗑️</button>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding-right:45px">
                   <span style="font-weight:600;font-size:0.85rem">${g.name}</span>
                   <span style="font-weight:800;font-size:0.85rem;color:${g.color}">${progressPct}%</span>
                 </div>
@@ -306,6 +349,73 @@
         toast('Error al cargar datos del dashboard', 'error');
       }
     }
+
+    // --- GOAL ACTIONS ---
+    document.getElementById('add-goal-btn').addEventListener('click', () => {
+      // Basic plan check
+      if (user.plan !== 'plus' && window.currentGoals && window.currentGoals.length >= 3) {
+        plans.showUpgradePrompt('default');
+        return;
+      }
+      document.getElementById('goal-id').value = '';
+      document.getElementById('goal-form').reset();
+      document.getElementById('modal-goal-title').textContent = 'Nueva Meta de Ahorro';
+      openModal('goal-modal');
+    });
+
+    window.editGoal = function(id) {
+      const goal = window.currentGoals.find(g => g.id === id);
+      if (!goal) return;
+      document.getElementById('goal-id').value = goal.id;
+      document.getElementById('goal-name').value = goal.name;
+      document.getElementById('goal-target').value = goal.target;
+      document.getElementById('goal-current').value = goal.current;
+      document.getElementById('goal-color').value = goal.color;
+      document.getElementById('modal-goal-title').textContent = 'Editar Meta de Ahorro';
+      openModal('goal-modal');
+    }
+
+    window.deleteGoal = async function(id) {
+      if (!confirm('¿Estás seguro de que querés eliminar esta meta?')) return;
+      try {
+        await api.delete(`/goals/${id}`);
+        toast('Meta eliminada con éxito');
+        loadDashboard();
+      } catch (err) {
+        console.error(err);
+        toast(err.message || 'Error al eliminar meta', 'error');
+      }
+    }
+
+    document.getElementById('goal-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('goal-id').value;
+      const name = document.getElementById('goal-name').value;
+      const target = parseFloat(document.getElementById('goal-target').value);
+      const current = parseFloat(document.getElementById('goal-current').value);
+      const color = document.getElementById('goal-color').value;
+
+      const body = { name, target, current, color };
+      const btn = document.getElementById('goal-submit-btn');
+
+      try {
+        setLoading(btn, true);
+        if (id) {
+          await api.put(`/goals/${id}`, body);
+          toast('Meta actualizada con éxito');
+        } else {
+          await api.post('/goals', body);
+          toast('Meta creada con éxito');
+        }
+        closeModal('goal-modal');
+        loadDashboard();
+      } catch (err) {
+        console.error(err);
+        toast(err.message || 'Error al guardar la meta', 'error');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
   </script>
 </body>
 </html>
