@@ -37,26 +37,31 @@ export class DashboardService {
     const currentMonth = now.getMonth(); // 0-indexed (0 = Enero, 11 = Diciembre)
 
     const monthlyExpenses = expenses.filter((e) => {
-      const eDate = new Date(e.date); // parseamos la fecha de la transacción
-      return eDate.getFullYear() === currentYear && eDate.getMonth() === currentMonth;
+      if (!e.date) return false;
+      // Las fechas vienen como 'YYYY-MM-DD'
+      const parts = e.date.split('-');
+      if (parts.length < 3) return false;
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Ajustar a 0-indexed
+      return year === currentYear && month === currentMonth;
     });
 
     // Calcular gasto mensual actual
     const monthlySpending = monthlyExpenses
       .filter((e) => e.type === 'expense')
-      .reduce((sum, e) => sum + Number(e.amount), 0);
+      .reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     // Calcular ingresos mensuales actuales
     const monthlyIncomeSum = monthlyExpenses
       .filter((e) => e.type === 'income')
-      .reduce((sum, e) => sum + Number(e.amount), 0);
+      .reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     // Distribución por categoría del mes actual
     const categoryMap: Record<string, number> = {};
     monthlyExpenses
       .filter((e) => e.type === 'expense')
       .forEach((e) => {
-        categoryMap[e.category] = (categoryMap[e.category] || 0) + Number(e.amount);
+        categoryMap[e.category] = (categoryMap[e.category] || 0) + Number(e.amount || 0);
       });
 
     const colors = ['#001736', '#006c47', '#6ffbbe', '#00b4d8', '#7c3aed', '#dc2626'];
