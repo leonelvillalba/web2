@@ -71,18 +71,24 @@
         </div>
 
         <!-- Stats -->
-        <div class="stats-grid" id="stats-grid">
+        <div class="stats-grid" id="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))">
+          <div class="stat-card">
+            <div class="stat-icon accent" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71">💵</div>
+            <div class="stat-label">Dinero Total (Balance)</div>
+            <div class="stat-value" id="stat-balance">—</div>
+            <div class="stat-change" style="color: var(--text-muted)">Histórico acumulado</div>
+          </div>
           <div class="stat-card">
             <div class="stat-icon accent">💰</div>
             <div class="stat-label">Gasto Mensual</div>
             <div class="stat-value" id="stat-spent">—</div>
-            <div class="stat-change down" id="stat-spent-change"><span>↗</span> vs mes anterior</div>
+            <div class="stat-change" id="stat-spent-label">Este mes</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon success">📈</div>
-            <div class="stat-label">Ingresos</div>
+            <div class="stat-label">Ingresos Mensuales</div>
             <div class="stat-value" id="stat-income">—</div>
-            <div class="stat-change up"><span>↗</span> Registrado este mes</div>
+            <div class="stat-change up"><span>↗</span> Este mes</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon blue">💳</div>
@@ -234,19 +240,28 @@
         ]);
 
         // Stats
-        const totalExpenses = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + Number(e.amount), 0);
-        const totalIncome = expenses.filter(e => e.type === 'income').reduce((s, e) => s + Number(e.amount), 0);
-        const rawBudget = parseFloat(user.budget);
+        const rawBudget = parseFloat(dashData.budget);
         const isBudgetDefined = !isNaN(rawBudget) && rawBudget > 0;
 
-        setText('#stat-spent', formatMoney(totalExpenses));
-        setText('#stat-income', formatMoney(totalIncome));
-        setText('#stat-txns', expenses.length);
+        setText('#stat-balance', formatMoney(dashData.balance));
+        setText('#stat-spent', formatMoney(dashData.monthlySpending));
+        setText('#stat-income', formatMoney(dashData.monthlyIncome));
+        
+        // Contar transacciones del mes actual para la tarjeta
+        const now = new Date();
+        const curYear = now.getFullYear();
+        const curMonth = now.getMonth();
+        const monthlyTxnsCount = expenses.filter(e => {
+          const d = new Date(e.date);
+          return d.getFullYear() === curYear && d.getMonth() === curMonth;
+        }).length;
+        
+        setText('#stat-txns', monthlyTxnsCount);
         
         const budgetEl = document.getElementById('stat-budget-pct');
 
         if (isBudgetDefined) {
-          const remaining = rawBudget - totalExpenses;
+          const remaining = rawBudget - dashData.monthlySpending;
           const pct = Math.round((remaining / rawBudget) * 100);
           setText('#stat-budget', formatMoney(remaining));
           budgetEl.innerHTML = `<span>${pct >= 0 ? '✓' : '⚠'}</span> ${pct}% restante`;
@@ -310,18 +325,25 @@
           `).join('');
         }
 
-        // Categories
+        // Categories (solo del mes actual)
         const catEl = document.getElementById('category-breakdown');
         const categories = {};
-        expenses.filter(e => e.type === 'expense').forEach(e => {
+        
+        // Filtramos para considerar los del mes actual
+        const curMonthExpenses = expenses.filter(e => {
+          const d = new Date(e.date);
+          return d.getFullYear() === curYear && d.getMonth() === curMonth && e.type === 'expense';
+        });
+
+        curMonthExpenses.forEach(e => {
           categories[e.category] = (categories[e.category] || 0) + Number(e.amount);
         });
         const sorted = Object.entries(categories).sort(([,a],[,b]) => b - a);
         if (sorted.length === 0) {
-          catEl.innerHTML = '<p class="text-sm text-muted text-center">Sin datos todavía</p>';
+          catEl.innerHTML = '<p class="text-sm text-muted text-center">Sin datos todavía para este mes</p>';
         } else {
           catEl.innerHTML = sorted.map(([cat, amt]) => {
-            const pct = Math.round((amt / totalExpenses) * 100);
+            const pct = dashData.monthlySpending > 0 ? Math.round((amt / dashData.monthlySpending) * 100) : 0;
             return `
               <div style="margin-bottom:14px">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">

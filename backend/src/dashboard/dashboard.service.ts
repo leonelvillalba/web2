@@ -22,14 +22,38 @@ export class DashboardService {
       order: { createdAt: 'DESC' },
     });
 
-    // Calcular gasto mensual (solo expenses, no ingresos)
-    const monthlySpending = expenses
+    // 1. Calcular Balance Histórico Total (Ingresos históricos - Gastos históricos)
+    const totalIncome = expenses
+      .filter((e) => e.type === 'income')
+      .reduce((sum, e) => sum + Number(e.amount), 0);
+    const totalExpense = expenses
+      .filter((e) => e.type === 'expense')
+      .reduce((sum, e) => sum + Number(e.amount), 0);
+    const balance = totalIncome - totalExpense;
+
+    // 2. Filtrar transacciones del mes y año actual
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-indexed (0 = Enero, 11 = Diciembre)
+
+    const monthlyExpenses = expenses.filter((e) => {
+      const eDate = new Date(e.date); // parseamos la fecha de la transacción
+      return eDate.getFullYear() === currentYear && eDate.getMonth() === currentMonth;
+    });
+
+    // Calcular gasto mensual actual
+    const monthlySpending = monthlyExpenses
       .filter((e) => e.type === 'expense')
       .reduce((sum, e) => sum + Number(e.amount), 0);
 
-    // Distribución por categoría
+    // Calcular ingresos mensuales actuales
+    const monthlyIncomeSum = monthlyExpenses
+      .filter((e) => e.type === 'income')
+      .reduce((sum, e) => sum + Number(e.amount), 0);
+
+    // Distribución por categoría del mes actual
     const categoryMap: Record<string, number> = {};
-    expenses
+    monthlyExpenses
       .filter((e) => e.type === 'expense')
       .forEach((e) => {
         categoryMap[e.category] = (categoryMap[e.category] || 0) + Number(e.amount);
@@ -42,7 +66,7 @@ export class DashboardService {
       color: colors[i % colors.length],
     }));
 
-    // Actividad reciente (últimos 5)
+    // Actividad reciente (últimos 5 globales)
     const recentActivity = expenses.slice(0, 5).map((e) => ({
       id: e.id,
       merchant: e.merchant,
@@ -60,9 +84,10 @@ export class DashboardService {
 
     return {
       userName: user.firstName,
-      balance: 142500,
+      balance,
       monthlySpending,
-      budget: Number(user.budget) || 4200,
+      monthlyIncome: monthlyIncomeSum,
+      budget: Number(user.budget) || 0,
       savingsGoals: savingsGoals.map(g => ({
         id: g.id,
         name: g.name,
