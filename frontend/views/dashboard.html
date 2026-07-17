@@ -198,17 +198,26 @@
         // Stats
         const totalExpenses = expenses.filter(e => e.type === 'expense').reduce((s, e) => s + Number(e.amount), 0);
         const totalIncome = expenses.filter(e => e.type === 'income').reduce((s, e) => s + Number(e.amount), 0);
-        const budget = user.budget || 4200;
-        const remaining = budget - totalExpenses;
-        const pct = Math.round((remaining / budget) * 100);
+        const rawBudget = parseFloat(user.budget);
+        const isBudgetDefined = !isNaN(rawBudget) && rawBudget > 0;
 
         setText('#stat-spent', formatMoney(totalExpenses));
         setText('#stat-income', formatMoney(totalIncome));
         setText('#stat-txns', expenses.length);
-        setText('#stat-budget', formatMoney(remaining));
+        
         const budgetEl = document.getElementById('stat-budget-pct');
-        budgetEl.innerHTML = `<span>${pct >= 0 ? '✓' : '⚠'}</span> ${pct}% restante`;
-        budgetEl.className = `stat-change ${pct >= 20 ? 'up' : 'down'}`;
+
+        if (isBudgetDefined) {
+          const remaining = rawBudget - totalExpenses;
+          const pct = Math.round((remaining / rawBudget) * 100);
+          setText('#stat-budget', formatMoney(remaining));
+          budgetEl.innerHTML = `<span>${pct >= 0 ? '✓' : '⚠'}</span> ${pct}% restante`;
+          budgetEl.className = `stat-change ${pct >= 20 ? 'up' : 'down'}`;
+        } else {
+          setText('#stat-budget', '—');
+          budgetEl.innerHTML = 'sin definir';
+          budgetEl.className = 'stat-change text-muted';
+        }
 
         // Savings Goals
         const goalsEl = document.getElementById('savings-goals');
