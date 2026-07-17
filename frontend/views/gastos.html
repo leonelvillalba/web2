@@ -62,12 +62,23 @@
 
         <!-- Tabla de gastos -->
         <div class="card" style="padding:0;overflow:hidden">
-          <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <h3 style="font-weight:700">Movimientos</h3>
-            <div class="tabs" style="margin-bottom:0;width:auto">
-              <button class="tab-btn active" onclick="filterExpenses('all',this)">Todos</button>
-              <button class="tab-btn" onclick="filterExpenses('expense',this)">Gastos</button>
-              <button class="tab-btn" onclick="filterExpenses('income',this)">Ingresos</button>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px">
+                <label for="sort-select" style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">Ordenar por:</label>
+                <select id="sort-select" class="form-input" style="padding:5px 10px;font-size:0.8rem;border-radius:var(--radius-sm);cursor:pointer;min-width:160px" onchange="changeSortOrder(this.value)">
+                  <option value="date-desc">Fecha (más reciente)</option>
+                  <option value="date-asc">Fecha (más antiguo)</option>
+                  <option value="amount-desc">Mayor monto</option>
+                  <option value="amount-asc">Menor monto</option>
+                </select>
+              </div>
+              <div class="tabs" style="margin-bottom:0;width:auto">
+                <button class="tab-btn active" onclick="filterExpenses('all',this)">Todos</button>
+                <button class="tab-btn" onclick="filterExpenses('expense',this)">Gastos</button>
+                <button class="tab-btn" onclick="filterExpenses('income',this)">Ingresos</button>
+              </div>
             </div>
           </div>
           <div class="table-wrapper">
@@ -177,6 +188,7 @@
     const user = auth.getUser();
     let allExpenses = [];
     let currentFilter = 'all';
+    let currentSort = 'date-desc';
 
     // Set default date
     document.getElementById('add-date').valueAsDate = new Date();
@@ -203,12 +215,23 @@
       const search = searchInput ? searchInput.value.toLowerCase() : '';
       if (search) filtered = filtered.filter(e => e.merchant.toLowerCase().includes(search) || e.category.toLowerCase().includes(search));
 
+      // Sorting
+      filtered = [...filtered].sort((a, b) => {
+        switch (currentSort) {
+          case 'date-desc': return new Date(b.date) - new Date(a.date);
+          case 'date-asc': return new Date(a.date) - new Date(b.date);
+          case 'amount-desc': return Number(b.amount) - Number(a.amount);
+          case 'amount-asc': return Number(a.amount) - Number(b.amount);
+          default: return 0;
+        }
+      });
+
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-state" style="padding:40px"><div class="empty-state-icon">📋</div><p class="empty-state-title">Sin movimientos</p><p class="empty-state-desc">Agregá tu primer gasto o ingreso.</p></td></tr>`;
         return;
       }
 
-      tbody.innerHTML = filtered.reverse().map(e => `
+      tbody.innerHTML = filtered.map(e => `
         <tr>
           <td><div style="display:flex;align-items:center;gap:10px">
             <span style="font-size:1.2rem">${categoryIcons[e.category] || '📦'}</span>
@@ -240,6 +263,11 @@
       currentFilter = type;
       $$('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      renderExpenses();
+    }
+
+    function changeSortOrder(value) {
+      currentSort = value;
       renderExpenses();
     }
 
