@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -23,11 +24,13 @@ export class AuthService {
       return { error: 'El email ya está registrado' };
     }
 
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     const user = this.usersRepo.create({
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      password: data.password, // En producción se hashea
+      password: hashedPassword,
       role: data.role || 'user',
       budget: 4200,
     });
@@ -39,7 +42,26 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.usersRepo.findOne({ where: { email } });
-    if (!user || user.password !== password) {
+    if (!user) {
+      return { error: 'Email o contraseña incorrectos' };
+    }
+
+    // Soporte para contraseñas antiguas en texto plano (migración gradual)
+    let passwordValid = false;
+    if (user.password.startsWith('$2b$') || user.password.startsWith('$2a$')) {
+      // Contraseña ya hasheada con bcrypt
+      passwordValid = await bcrypt.compare(password, user.password);
+    } else {
+      // Contraseña antigua en texto plano — comparar y migrar
+      passwordValid = user.password === password;
+      if (passwordValid) {
+        // Migrar a bcrypt en el primer login exitoso
+        const hashed = await bcrypt.hash(password, 10);
+        await this.usersRepo.update(user.id, { password: hashed });
+      }
+    }
+
+    if (!passwordValid) {
       return { error: 'Email o contraseña incorrectos' };
     }
 
@@ -78,7 +100,7 @@ export class AuthService {
           password: 'google-oauth-placeholder-password',
           role: 'user',
           budget: 4200,
-          plan: 'Plus', // Le damos Plan Plus de bienvenida en la demo
+          plan: 'plus', // Le damos Plan Plus de bienvenida en la demo
         });
         user = await this.usersRepo.save(user);
       }

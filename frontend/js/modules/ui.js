@@ -74,7 +74,11 @@ function formatMoney(amount, currency = 'ARS') {
 
 // ─── DATE FORMAT ───
 function formatDate(dateStr) {
-  const d = new Date(dateStr);
+  if (!dateStr) return '—';
+  // Parsear manualmente para evitar que "YYYY-MM-DD" se interprete como UTC
+  // y aparezca un día antes en zonas horarias negativas (ej: UTC-3 Argentina)
+  const parts = dateStr.split('T')[0].split('-');
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
   return d.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 

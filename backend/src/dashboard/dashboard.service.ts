@@ -101,13 +101,7 @@ export class DashboardService {
         color: g.color,
       })),
       recentActivity,
-      spendingDistribution: spendingDistribution.length > 0
-        ? spendingDistribution
-        : [
-            { name: 'Vivienda', value: 60, color: '#001736' },
-            { name: 'Comida', value: 25, color: '#006c47' },
-            { name: 'Transporte', value: 15, color: '#6ffbbe' },
-          ],
+      spendingDistribution,
     };
   }
 }

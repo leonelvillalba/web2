@@ -252,7 +252,8 @@
         const curYear = now.getFullYear();
         const curMonth = now.getMonth();
         const monthlyTxnsCount = expenses.filter(e => {
-          const d = new Date(e.date);
+          const parts = (e.date || '').split('T')[0].split('-');
+          const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
           return d.getFullYear() === curYear && d.getMonth() === curMonth;
         }).length;
         
@@ -331,7 +332,8 @@
         
         // Filtramos para considerar los del mes actual
         const curMonthExpenses = expenses.filter(e => {
-          const d = new Date(e.date);
+          const parts = (e.date || '').split('T')[0].split('-');
+          const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
           return d.getFullYear() === curYear && d.getMonth() === curMonth && e.type === 'expense';
         });
 
