@@ -126,6 +126,10 @@ export class AuthService {
     for (const key of allowed) {
       if (data[key] !== undefined) safeData[key] = data[key];
     }
+    // Nunca dejar budget como null (columna NOT NULL en BD)
+    if (safeData.budget === null || safeData.budget === undefined) {
+      safeData.budget = 0;
+    }
     if (Object.keys(safeData).length > 0) {
       await this.usersRepo.update(userId, safeData);
     }

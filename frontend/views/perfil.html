@@ -141,7 +141,7 @@
     document.getElementById('pf-firstName').value = user.firstName || '';
     document.getElementById('pf-lastName').value = user.lastName || '';
     document.getElementById('pf-email').value = user.email || '';
-    document.getElementById('pf-budget').value = user.budget || '';
+    document.getElementById('pf-budget').value = (user.budget !== undefined && user.budget !== null) ? user.budget : '';
     document.getElementById('pf-currency').value = user.currency || 'ARS';
 
     // Save profile
@@ -151,7 +151,7 @@
       const data = {
         firstName: document.getElementById('pf-firstName').value.trim(),
         lastName: document.getElementById('pf-lastName').value.trim(),
-        budget: parseFloat(document.getElementById('pf-budget').value) || null,
+        budget: isNaN(parseFloat(document.getElementById('pf-budget').value)) ? 0 : parseFloat(document.getElementById('pf-budget').value),
         currency: document.getElementById('pf-currency').value,
       };
 
