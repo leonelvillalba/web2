@@ -144,3 +144,42 @@ document.addEventListener('click', (e) => {
     auth.logout();
   }
 });
+
+// ─── MOBILE MENU ───
+document.addEventListener('DOMContentLoaded', () => {
+  const navbarLeft = document.querySelector('.navbar-left');
+  if (navbarLeft && !document.getElementById('mobile-menu-btn')) {
+    const btn = document.createElement('button');
+    btn.id = 'mobile-menu-btn';
+    btn.className = 'navbar-btn-icon mobile-only';
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>`;
+    btn.style.marginRight = '12px';
+    btn.style.background = 'transparent';
+    btn.style.border = 'none';
+    btn.style.cursor = 'pointer';
+    btn.style.color = 'var(--text)';
+    
+    // Add overlay element
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    btn.onclick = () => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      }
+    };
+
+    overlay.onclick = () => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      }
+    };
+
+    navbarLeft.prepend(btn);
+  }
+});

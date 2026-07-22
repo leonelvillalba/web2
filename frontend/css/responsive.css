@@ -7,6 +7,8 @@
    - 480px:  Móvil pequeño
    ===================================================================== */
 
+.mobile-only { display: none; }
+
 @media (max-width: 1024px) {
   .features-grid { grid-template-columns: repeat(2, 1fr); }
   .hero { grid-template-columns: 1fr; gap: 40px; }
@@ -14,7 +16,7 @@
 
 @media (max-width: 768px) {
   :root { --sidebar-w: 0px; }
-  .sidebar { transform: translateX(-240px); }
+  .sidebar { transform: translateX(-260px); z-index: 1000; transition: transform 0.3s ease; }
   .sidebar.open { transform: translateX(0); }
   .navbar { left: 0; }
   .features-grid { grid-template-columns: 1fr; }
@@ -22,11 +24,22 @@
   .grid-2 { grid-template-columns: 1fr; }
   .pricing-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 2.2rem; }
-  .page-content { padding: 20px; }
+  .page-content { padding: 16px; }
+  .mobile-only { display: block !important; }
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .modal { width: 90%; padding: 24px; }
+  
+  /* Overlay for sidebar */
+  .sidebar-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 999; display: none;
+  }
+  .sidebar-overlay.active { display: block; }
 }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .hero-actions { flex-direction: column; }
   .btn-lg { width: 100%; justify-content: center; }
+  .auth-card { padding: 32px 20px; }
 }
