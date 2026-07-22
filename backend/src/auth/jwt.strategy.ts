@@ -19,6 +19,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Usuario no válido');
     }
+    if (user.isBanned) {
+      throw new UnauthorizedException('Cuenta suspendida');
+    }
     return user; // Se inyecta en req.user
   }
 }

@@ -45,6 +45,9 @@ export class AuthService {
     if (!user) {
       return { error: 'Email o contraseña incorrectos' };
     }
+    if (user.isBanned) {
+      return { error: 'Tu cuenta ha sido suspendida' };
+    }
 
     // Soporte para contraseñas antiguas en texto plano (migración gradual)
     let passwordValid = false;
@@ -103,6 +106,10 @@ export class AuthService {
           plan: 'plus', // Le damos Plan Plus de bienvenida en la demo
         });
         user = await this.usersRepo.save(user);
+      }
+      
+      if (user.isBanned) {
+        return { error: 'Tu cuenta ha sido suspendida' };
       }
       
       const { password, ...result } = user;

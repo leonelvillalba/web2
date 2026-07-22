@@ -46,6 +46,9 @@ export class User {
   @Column({ default: 0 })
   scansToday: number;
 
+  @Column({ default: false })
+  isBanned: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
