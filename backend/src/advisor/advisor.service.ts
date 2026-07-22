@@ -73,13 +73,14 @@ export class AdvisorService {
     return clients;
   }
 
-  async toggleBan(userId: number) {
+  async toggleBan(userId: number, reason?: string) {
     const user = await this.usersRepo.findOne({ where: { id: userId, role: 'user' } });
     if (!user) {
       throw new Error('Usuario no encontrado o es un asesor');
     }
     user.isBanned = !user.isBanned;
+    user.banReason = user.isBanned ? (reason || null) : null;
     await this.usersRepo.save(user);
-    return { success: true, isBanned: user.isBanned };
+    return { success: true, isBanned: user.isBanned, banReason: user.banReason };
   }
 }

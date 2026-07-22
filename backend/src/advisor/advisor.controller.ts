@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, ForbiddenException, Param, Put } from '@nestjs/common';
+import { Controller, Get, UseGuards, ForbiddenException, Param, Put, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../entities/user.entity';
@@ -19,10 +19,10 @@ export class AdvisorController {
 
   @UseGuards(JwtAuthGuard)
   @Put('clients/:id/ban')
-  toggleBan(@GetUser() user: User, @Param('id') id: string) {
+  toggleBan(@GetUser() user: User, @Param('id') id: string, @Body('reason') reason: string) {
     if (user.role !== 'advisor') {
       throw new ForbiddenException('No tienes permisos de asesor');
     }
-    return this.advisorService.toggleBan(Number(id));
+    return this.advisorService.toggleBan(Number(id), reason);
   }
 }

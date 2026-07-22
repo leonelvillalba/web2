@@ -20,7 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Usuario no válido');
     }
     if (user.isBanned) {
-      throw new UnauthorizedException('Cuenta suspendida');
+      const reason = user.banReason ? ` Motivo: ${user.banReason}` : '';
+      throw new UnauthorizedException(`Cuenta suspendida.${reason}`);
     }
     return user; // Se inyecta en req.user
   }

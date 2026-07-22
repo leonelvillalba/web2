@@ -46,7 +46,8 @@ export class AuthService {
       return { error: 'Email o contraseña incorrectos' };
     }
     if (user.isBanned) {
-      return { error: 'Tu cuenta ha sido suspendida' };
+      const reason = user.banReason ? ` Motivo: ${user.banReason}` : '';
+      return { error: `Tu cuenta ha sido suspendida.${reason}` };
     }
 
     // Soporte para contraseñas antiguas en texto plano (migración gradual)
@@ -109,7 +110,8 @@ export class AuthService {
       }
       
       if (user.isBanned) {
-        return { error: 'Tu cuenta ha sido suspendida' };
+        const reason = user.banReason ? ` Motivo: ${user.banReason}` : '';
+        return { error: `Tu cuenta ha sido suspendida.${reason}` };
       }
       
       const { password, ...result } = user;

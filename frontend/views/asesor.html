@@ -126,7 +126,7 @@
               <td style="font-weight:700;color:var(--success)">${formatMoney(ingresos)}</td>
               <td style="text-align:center">${txns}</td>
               <td style="text-align:right">
-                <button onclick="toggleBan(${c.id})" class="btn btn-sm ${c.isBanned ? 'btn-success' : 'btn-outline'}" style="${c.isBanned ? '' : 'color:var(--error);border-color:var(--error)'}">
+                <button onclick="toggleBan(${c.id}, ${c.isBanned})" class="btn btn-sm ${c.isBanned ? 'btn-success' : 'btn-outline'}" style="${c.isBanned ? '' : 'color:var(--error);border-color:var(--error)'}">
                   ${c.isBanned ? 'Desbanear' : 'Banear'}
                 </button>
               </td>
@@ -146,15 +146,28 @@
       }
     }
 
-    async function toggleBan(userId) {
-      if (!confirm('¿Estás seguro de cambiar el estado de este usuario?')) return;
-      try {
-        await api.put(`/advisor/clients/${userId}/ban`);
-        toast('Estado actualizado correctamente', 'success');
-        loadClients(); // Recargar la tabla
-      } catch (err) {
-        console.error(err);
-        toast('Error al actualizar el estado: ' + (err.message || ''), 'error');
+    async function toggleBan(userId, isBanned) {
+      if (isBanned) {
+        // Desbanear: no requiere motivo
+        if (!confirm('¿Estás seguro de desbanear a este usuario?')) return;
+        try {
+          await api.put(`/advisor/clients/${userId}/ban`);
+          toast('Usuario desbaneado correctamente', 'success');
+          loadClients();
+        } catch (err) {
+          toast('Error al desbanear: ' + (err.message || ''), 'error');
+        }
+      } else {
+        // Banear: requiere motivo opcional
+        const reason = prompt('Motivo del baneo (opcional):');
+        if (reason === null) return; // Canceló
+        try {
+          await api.put(`/advisor/clients/${userId}/ban`, { reason });
+          toast('Usuario baneado correctamente', 'success');
+          loadClients();
+        } catch (err) {
+          toast('Error al banear: ' + (err.message || ''), 'error');
+        }
       }
     }
   </script>
