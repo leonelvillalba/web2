@@ -15,19 +15,22 @@
 }
 
 @media (max-width: 768px) {
+  body { overflow-x: hidden; }
   :root { --sidebar-w: 0px; }
-  .sidebar { transform: translateX(-260px); z-index: 1000; transition: transform 0.3s ease; }
+  .sidebar { width: 260px !important; transform: translateX(-260px); z-index: 1000; transition: transform 0.3s ease; }
   .sidebar.open { transform: translateX(0); }
-  .navbar { left: 0; }
+  .navbar { left: 0; padding: 0 16px; }
+  .navbar-search { display: none; } /* Ocultar barra de búsqueda en móvil para evitar scroll horizontal */
+  .navbar-left { flex: 1; }
   .features-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .pricing-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 2.2rem; }
-  .page-content { padding: 16px; }
+  .page-content { padding: 16px; max-width: 100vw; overflow-x: hidden; }
   .mobile-only { display: block !important; }
-  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .modal { width: 90%; padding: 24px; }
+  .table-wrapper { width: 100%; max-width: 100vw; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .modal { width: 95%; padding: 24px 16px; }
   
   /* Overlay for sidebar */
   .sidebar-overlay {
